@@ -28,4 +28,13 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
 
     @Query(value = "SELECT * FROM SanPham ORDER BY DaBan DESC LIMIT 5", nativeQuery = true)
     List<SanPham> findTop5BanChay();
+
+    @Query("SELECT s FROM SanPham s WHERE LOWER(s.TenSanPham) LIKE LOWER(CONCAT('%', :keyword, '%')) AND s.TrangThai = true")
+    List<SanPham> findByTenSanPhamContainingIgnoreCaseAndTrangThaiTrue(@Param("keyword") String keyword);
+
+    @Query("SELECT s FROM SanPham s WHERE s.danhMuc.IdDanhMuc = :categoryId AND s.TrangThai = true")
+    List<SanPham> findByDanhMuc_IdDanhMucAndTrangThaiTrue(@Param("categoryId") Integer categoryId);
+
+    @Query("SELECT s FROM SanPham s WHERE s.danhMuc.IdDanhMuc = :categoryId AND LOWER(s.TenSanPham) LIKE LOWER(CONCAT('%', :keyword, '%')) AND s.TrangThai = true")
+    List<SanPham> findByDanhMuc_IdDanhMucAndTenSanPhamContainingIgnoreCaseAndTrangThaiTrue(@Param("categoryId") Integer categoryId, @Param("keyword") String keyword);
 }

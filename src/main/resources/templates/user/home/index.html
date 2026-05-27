@@ -18,7 +18,7 @@
 <body>
 
 <!-- HEADER -->
-<div th:replace="fragments/header :: header"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 
 <!-- BANNER -->
 
@@ -180,90 +180,49 @@
     <div class="row">
 
         <!-- ITEM -->
+        <th:block th:each="sp : ${sanPhamNoiBatList}">
         <div class="col-lg-3 col-md-6 mb-4">
-
-            <div class="product-card">
-
-                <!-- SALE -->
-                <div class="sale-badge">
-                    -22%
+            <div class="product-card h-100 d-flex flex-column hover-card position-relative shadow-sm rounded overflow-hidden">
+                <div class="position-absolute top-0 left-0 m-2 d-flex flex-column" style="z-index: 1; gap: 4px;">
+                    <span class="bg-danger text-white px-2 py-1 rounded fw-bold shadow-sm" style="font-size: 0.8rem;" th:if="${sp.laBanChay}">Bán chạy</span>
+                    <span class="bg-warning text-dark px-2 py-1 rounded fw-bold shadow-sm" style="font-size: 0.8rem;" th:if="${sp.laNoiBat}">Nổi bật</span>
+                    <span class="bg-info text-white px-2 py-1 rounded fw-bold shadow-sm" style="font-size: 0.8rem;" th:if="${sp.laSanPhamMoi}">Mới</span>
                 </div>
 
                 <!-- IMAGE -->
                 <div class="product-image">
-
-                    <img th:src="@{/images/coffee1.jpg}" alt="">
-
+                    <img th:src="${sp.hinhAnh}" th:alt="${sp.tenSanPham}" style="height: 250px; object-fit: cover; width: 100%;">
                 </div>
 
                 <!-- INFO -->
-                <div class="product-info">
+                <div class="product-info p-3 d-flex flex-column flex-grow-1">
+                    <h4 th:text="${sp.tenSanPham}">Cafe Sữa Đá</h4>
 
-                    <!-- NAME -->
-                    <h4>
-                        Cafe Sữa Đá
-                    </h4>
-
-                    <!-- PRICE -->
-                    <div class="price-box">
-
-                <span class="new-price">
-                    35.000đ
-                </span>
-
-                        <span class="old-price">
-                    45.000đ
-                </span>
-
+                    <div class="price-box mb-2">
+                        <span class="new-price font-weight-bold text-success" th:text="${#numbers.formatDecimal(sp.gia, 0, 'COMMA', 0, 'POINT')} + 'đ'">35.000đ</span>
+                        <del class="old-price text-muted ml-2" th:if="${sp.giaKhuyenMai != null}" th:text="${#numbers.formatDecimal(sp.giaKhuyenMai, 0, 'COMMA', 0, 'POINT')} + 'đ'">45.000đ</del>
                     </div>
 
-                    <!-- STAR -->
-                    <div class="rating-sold">
-
-                        <div class="rating">
-
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-
-                            <span>(120)</span>
-
+                    <div class="rating-sold mb-3">
+                        <div class="rating text-warning">
+                            <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
+                            <span class="text-muted ml-1" th:text="'(' + ${sp.danhGia != null ? sp.danhGia : 5.0} + ')'">(5.0)</span>
                         </div>
-
-                        <div class="sold">
-                            Đã bán 1.2k
-                        </div>
-
+                        <div class="sold text-muted small" th:text="'Đã bán ' + ${sp.daBan}">Đã bán 120</div>
                     </div>
 
-                    <!-- COLOR -->
-                    <div class="color-list">
-
-                        <span class="color black"></span>
-
-                        <span class="color white"></span>
-
-                    </div>
-
-                    <!-- BUTTON -->
-                    <button class="buy-btn">
-                        Đặt ngay
-                    </button>
-
+                    <a th:href="@{/detail(id=${sp.idSanPham})}" class="btn btn-success mt-auto w-100 rounded-pill font-weight-bold"> Đặt ngay </a>
                 </div>
-
             </div>
-
         </div>
+        </th:block>
 
     </div>
 
 </section>
 
 <!-- FOOTER -->
-<div th:replace="fragments/footer :: footer"></div>
+<div th:replace="~{fragments/footer :: footer}"></div>
 
 
 

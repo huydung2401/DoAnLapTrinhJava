@@ -23,6 +23,10 @@ public class ChiTietDonHang {
     @JoinColumn(name = "IdSanPham")
     private SanPham sanPham;
 
+    @ManyToOne
+    @JoinColumn(name = "IdSize")
+    private SizeSanPham sizeSanPham;
+
     private Integer soLuong;
 
     private Double donGia;

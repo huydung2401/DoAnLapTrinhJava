@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/fragments/admin-layout :: layout('Quản lý Nhập Kho', ~{::#main-content})}">
+<body>
+    <div id="main-content">
+        <div class="admin-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="card-title">Lịch sử Phiếu Nhập Kho</h4>
+                <a th:href="@{/admin/nhapkho/create}" class="btn-primary-admin text-decoration-none">
+                    <i class="fas fa-plus"></i> Tạo phiếu nhập mới
+                </a>
+            </div>
+            <div class="card-body">
+                <!-- Search (Bỏ qua chức năng lọc ngày phức tạp cho đơn giản trước mắt) -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <input type="date" class="form-control" name="date">
+                            <button class="btn btn-outline-secondary" type="button">Lọc theo ngày</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover table-admin">
+                        <thead>
+                            <tr>
+                                <th>Mã Phiếu</th>
+                                <th>Ngày Nhập</th>
+                                <th>Người Lập</th>
+                                <th>Tổng Tiền</th>
+                                <th width="100" class="text-center">Chi tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="phieu : ${dsPhieuNhap}">
+                                <td class="fw-bold" th:text="'#NK' + ${phieu.idPhieuNhap}"></td>
+                                <td th:text="${#temporals.format(phieu.ngayNhap, 'dd/MM/yyyy HH:mm')}"></td>
+                                <td>Administrator</td>
+                                <td class="fw-bold text-danger" th:text="${#numbers.formatDecimal(phieu.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-info" title="Xem chi tiết" 
+                                            th:onclick="'showDetailModal(' + ${phieu.idPhieuNhap} + ')'">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(dsPhieuNhap)}">
+                                <td colspan="5" class="text-center text-muted py-4">Chưa có phiếu nhập kho nào.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Chi Tiết -->
+        <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Chi Tiết Phiếu Nhập</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="detailModalBody">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function showDetailModal(id) {
+                const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+                modal.show();
+                
+                // Fetch detail content using AJAX
+                fetch('/admin/nhapkho/detail/' + id)
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('detailModalBody').innerHTML = html;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching detail:', error);
+                        document.getElementById('detailModalBody').innerHTML = '<div class="alert alert-danger">Đã có lỗi xảy ra khi lấy dữ liệu.</div>';
+                    });
+            }
+        </script>
+    </div>
+</body>
+</html>

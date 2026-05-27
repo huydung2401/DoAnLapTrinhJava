@@ -53,6 +53,10 @@ public class TaiKhoanController {
                     user.getHoTen()
             );
 
+            if ("ADMIN".equalsIgnoreCase(user.getVaiTro())) {
+                return "redirect:/admin/dashboard";
+            }
+
             return "redirect:/home";
         }
 

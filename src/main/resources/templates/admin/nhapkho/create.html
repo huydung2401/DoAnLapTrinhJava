@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/fragments/admin-layout :: layout('Tạo Phiếu Nhập Kho', ~{::#main-content})}">
+<body>
+    <div id="main-content">
+        <div class="row">
+            <div class="col-md-10 mx-auto">
+                <div class="admin-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0">Tạo Phiếu Nhập Hàng</h4>
+                        <a th:href="@{/admin/nhapkho}" class="btn btn-sm btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <form id="nhapKhoForm">
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Ghi chú phiếu nhập</label>
+                                <textarea id="ghiChu" class="form-control" rows="2" placeholder="Ví dụ: Nhập hàng cuối tháng..."></textarea>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0 text-primary"><i class="fas fa-list"></i> Danh sách sản phẩm nhập</h5>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addRow()">
+                                    <i class="fas fa-plus"></i> Thêm dòng
+                                </button>
+                            </div>
+
+                            <div class="table-responsive mb-4">
+                                <table class="table table-bordered align-middle" id="chiTietTable">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Sản Phẩm</th>
+                                            <th width="150">Số Lượng</th>
+                                            <th width="200">Giá Nhập (VNĐ)</th>
+                                            <th width="200">Thành Tiền (VNĐ)</th>
+                                            <th width="50"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="chiTietBody">
+                                        <!-- Dòng sẽ được tạo tự động bởi JS -->
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="3" class="text-end fw-bold fs-5">TỔNG CỘNG:</td>
+                                            <td class="text-end fw-bold fs-5 text-danger" id="tongCongDisplay">0 đ</td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            
+                            <!-- Template để copy (ẩn) -->
+                            <template id="rowTemplate">
+                                <tr>
+                                    <td>
+                                        <select class="form-select sp-select" onchange="calculateRow(this)">
+                                            <option value="">-- Chọn sản phẩm --</option>
+                                            <option th:each="sp : ${listSP}" th:value="${sp.idSanPham}" th:text="${sp.tenSanPham}"></option>
+                                        </select>
+                                    </td>
+                                    <td><input type="number" class="form-control text-center sl-input" min="1" value="1" oninput="calculateRow(this)"></td>
+                                    <td><input type="number" class="form-control text-end gia-input" min="0" value="0" oninput="calculateRow(this)"></td>
+                                    <td><input type="text" class="form-control text-end fw-bold text-danger tt-input" value="0" readonly></td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-sm btn-danger" onclick="removeRow(this)"><i class="fas fa-times"></i></button>
+                                    </td>
+                                </tr>
+                            </template>
+                            
+                            <hr>
+                            
+                            <div class="d-flex justify-content-end gap-2">
+                                <a th:href="@{/admin/nhapkho}" class="btn btn-light">Hủy bỏ</a>
+                                <button type="button" class="btn btn-primary-admin" onclick="submitForm(this)">
+                                    <i class="fas fa-check-circle"></i> Xác Nhận Nhập Kho
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Hàm thêm dòng mới
+            function addRow() {
+                const tbody = document.getElementById('chiTietBody');
+                const template = document.getElementById('rowTemplate');
+                const clone = template.content.cloneNode(true);
+                tbody.appendChild(clone);
+            }
+            
+            // Hàm xóa dòng
+            function removeRow(btn) {
+                const tr = btn.closest('tr');
+                tr.remove();
+                calculateTotal();
+            }
+            
+            // Format tiền (VNĐ)
+            function formatCurrency(amount) {
+                return new Intl.NumberFormat('vi-VN').format(amount);
+            }
+            
+            // Tính toán từng dòng
+            function calculateRow(el) {
+                const tr = el.closest('tr');
+                const sl = parseFloat(tr.querySelector('.sl-input').value) || 0;
+                const gia = parseFloat(tr.querySelector('.gia-input').value) || 0;
+                
+                const tt = sl * gia;
+                tr.querySelector('.tt-input').value = formatCurrency(tt);
+                
+                calculateTotal();
+            }
+            
+            // Tính tổng cộng
+            function calculateTotal() {
+                const ttInputs = document.querySelectorAll('#chiTietBody .tt-input');
+                let total = 0;
+                ttInputs.forEach(input => {
+                    // Xóa dấu '.' để parse về số
+                    let val = input.value.replace(/\./g, '');
+                    total += parseFloat(val) || 0;
+                });
+                
+                document.getElementById('tongCongDisplay').innerText = formatCurrency(total) + ' đ';
+            }
+            
+            // Thêm sẵn 1 dòng khi vừa vào trang
+            window.onload = function() {
+                addRow();
+            }
+            
+            // Submit form lên server
+            function submitForm(btn) {
+                const ghiChu = document.getElementById('ghiChu').value;
+                const rows = document.querySelectorAll('#chiTietBody tr');
+                
+                let chiTiet = [];
+                let hasError = false;
+                
+                rows.forEach(tr => {
+                    const idSp = tr.querySelector('.sp-select').value;
+                    const sl = tr.querySelector('.sl-input').value;
+                    const gia = tr.querySelector('.gia-input').value;
+                    
+                    if(!idSp) {
+                        alert("Vui lòng chọn sản phẩm trên tất cả các dòng!");
+                        hasError = true;
+                        return;
+                    }
+                    if(sl <= 0 || gia < 0) {
+                        alert("Số lượng và giá nhập phải hợp lệ!");
+                        hasError = true;
+                        return;
+                    }
+                    
+                    chiTiet.push({
+                        idSanPham: parseInt(idSp),
+                        soLuong: parseInt(sl),
+                        giaNhap: parseFloat(gia)
+                    });
+                });
+                
+                if(hasError) return;
+                
+                if(chiTiet.length === 0) {
+                    alert("Vui lòng thêm ít nhất 1 sản phẩm nhập kho!");
+                    return;
+                }
+                
+                // Chuẩn bị payload JSON
+                const payload = {
+                    ghiChu: ghiChu,
+                    chiTiet: chiTiet
+                };
+                
+                // Disable button để tránh submit nhiều lần
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+                
+                fetch('/admin/nhapkho/api/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(response => {
+                    if(response.ok) {
+                        alert("Tạo phiếu nhập kho thành công!");
+                        window.location.href = "/admin/nhapkho";
+                    } else {
+                        response.text().then(text => alert(text));
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-check-circle"></i> Xác Nhận Nhập Kho';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Đã có lỗi xảy ra!");
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-check-circle"></i> Xác Nhận Nhập Kho';
+                });
+            }
+        </script>
+    </div>
+</body>
+</html>

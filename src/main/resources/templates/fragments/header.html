@@ -17,19 +17,12 @@
         </div>
 
         <!-- SEARCH -->
-
-        <div class="search-box">
-
-            <input type="text"
-                   placeholder="Tìm đồ uống...">
-
-            <button>
-
+        <form class="search-box" th:action="@{/menu}" method="get">
+            <input type="text" name="keyword" placeholder="Tìm đồ uống..." th:value="${currentKeyword}">
+            <button type="submit">
                 <i class="fa fa-search"></i>
-
             </button>
-
-        </div>
+        </form>
 
         <!-- RIGHT -->
 
@@ -263,28 +256,28 @@
 
                 <li>
                     <a class="dropdown-item"
-                       th:href="@{/SanPham(danhMuc=1)}">
+                       th:href="@{/menu(categoryId=1)}">
                         Cà phê
                     </a>
                 </li>
 
                 <li>
                     <a class="dropdown-item"
-                       th:href="@{/SanPham(danhMuc=4)}">
+                       th:href="@{/menu(categoryId=4)}">
                         Trà sữa
                     </a>
                 </li>
 
                 <li>
                     <a class="dropdown-item"
-                       th:href="@{/SanPham(danhMuc=3)}">
+                       th:href="@{/menu(categoryId=3)}">
                         Sinh tố
                     </a>
                 </li>
 
                 <li>
                     <a class="dropdown-item"
-                       th:href="@{/SanPham(danhMuc=5)}">
+                       th:href="@{/menu(categoryId=5)}">
                         Nước ép
                     </a>
                 </li>
@@ -293,11 +286,11 @@
 
         </div>
 
-        <a th:href="@{/SanPham(danhMuc=1)}">Cafe</a>
+        <a th:href="@{/menu(categoryId=1)}">Cafe</a>
 
-        <a th:href="@{/SanPham(danhMuc=4)}">Trà sữa</a>
+        <a th:href="@{/menu(categoryId=4)}">Trà sữa</a>
 
-        <a th:href="@{/SanPham(danhMuc=3)}">Sinh tố</a>
+        <a th:href="@{/menu(categoryId=3)}">Sinh tố</a>
 
         <a th:href="@{/KhuyenMai}">Khuyến mãi</a>
 

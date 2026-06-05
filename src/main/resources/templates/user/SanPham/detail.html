@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Sản Phẩm | Starbucks Theme</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+    <link rel="stylesheet" th:href="@{/css/logIn.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+
+    <style>
+        /* Bộ class màu sắc chuẩn riêng của trang chi tiết */
+        .text-main { color: #006241 !important; }
+        .text-accent { color: #00B14F !important; }
+        .bg-light-green { background-color: #F4F7F6 !important; }
+        .border-accent { border-color: #00B14F !important; }
+
+        .btn-main {
+            background-color: #006241 !important;
+            color: white !important;
+            border: 1px solid #006241 !important;
+            transition: all 0.3s;
+        }
+        .btn-main:hover {
+            background-color: #004a31 !important;
+            color: white !important;
+        }
+        .btn-outline-main {
+            color: #006241 !important;
+            border: 1px solid #006241 !important;
+            background-color: transparent !important;
+            transition: all 0.3s;
+        }
+        .btn-outline-main:hover {
+            background-color: #006241 !important;
+            color: white !important;
+        }
+
+        /* Ẩn nút radio và checkbox mặc định */
+        .custom-option-radio, .custom-option-checkbox { display: none; }
+
+        /* Thiết kế nhãn (label) thành nút bấm tròn trịa */
+        .custom-option-label {
+            cursor: pointer;
+            border: 2px solid #C8E6C9;
+            border-radius: 12px;
+            padding: 8px 20px;
+            color: #006241;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+            background-color: white;
+            text-align: center;
+            display: inline-block;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        .custom-option-label:hover {
+            background-color: #E8F5E9;
+            border-color: #00B14F;
+        }
+        /* Khi chọn radio hoặc checkbox */
+        .custom-option-radio:checked + .custom-option-label,
+        .custom-option-checkbox:checked + .custom-option-label {
+            background-color: #006241;
+            color: white;
+            border-color: #006241;
+            box-shadow: 0 4px 8px rgba(0, 98, 65, 0.2);
+        }
+
+        /* Ô tăng giảm số lượng */
+        .qty-btn {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            border: 2px solid #C8E6C9;
+            background: white;
+            color: #006241;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .qty-btn:hover { background-color: #E8F5E9; }
+
+        .qty-input {
+            width: 60px;
+            text-align: center;
+            border: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #006241;
+            background-color: transparent;
+        }
+        .qty-input:focus { outline: none; }
+
+        .hover-card { transition: all 0.3s ease-in-out; }
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 98, 65, 0.15) !important;
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- FLASH MESSAGES -->
+<div class="container mt-3">
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fas fa-check-circle mr-2"></i> <span th:text="${success}"></span>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fas fa-exclamation-circle mr-2"></i> <span th:text="${error}"></span>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0 fs-6 bg-transparent p-0">
+            <li class="breadcrumb-item"><a th:href="@{/}" class="text-muted text-decoration-none">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/menu}" class="text-muted text-decoration-none">Thực đơn</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/menu(categoryId=${sanPham.danhMuc.idDanhMuc})}" class="text-muted text-decoration-none" th:text="${sanPham.danhMuc.tenDanhMuc}">Trà Sữa</a></li>
+            <li class="breadcrumb-item active fw-bold text-accent" aria-current="page" th:text="${sanPham.tenSanPham}">Trà Sữa Trân Châu Oolong</li>
+        </ol>
+    </nav>
+</div>
+
+<section class="container mt-4 mb-5">
+    <div class="bg-white rounded shadow-sm border p-4 p-lg-5" style="border-color: #C8E6C9 !important;">
+        <div class="row">
+
+            <div class="col-lg-5 text-center mb-4 mb-lg-0">
+                <div class="position-relative">
+                    <div class="position-absolute top-0 left-0 m-3 d-flex flex-column" style="z-index: 1; gap: 8px;">
+                        <span class="bg-danger text-white px-3 py-2 rounded-pill fw-bold shadow-sm" th:if="${sanPham.laBanChay}">Bán chạy nhất</span>
+                        <span class="bg-warning text-dark px-3 py-2 rounded-pill fw-bold shadow-sm" th:if="${sanPham.laNoiBat}">Nổi bật</span>
+                        <span class="bg-info text-white px-3 py-2 rounded-pill fw-bold shadow-sm" th:if="${sanPham.laSanPhamMoi}">Mới</span>
+                    </div>
+                    <img th:src="${sanPham.hinhAnh}"
+                         th:alt="${sanPham.tenSanPham}"
+                         class="img-fluid rounded shadow"
+                         style="height: 550px; width: 100%; object-fit: cover;">
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <h2 class="fw-bold text-main mb-2" th:text="${sanPham.tenSanPham}">Trà Sữa Trân Châu Oolong Đậm Vị</h2>
+
+
+                <h3 class="fw-bold text-accent mb-4">
+                    <span th:text="${#numbers.formatDecimal(sanPham.gia, 0, 'COMMA', 0, 'POINT')} + 'đ'">35.000đ</span>
+                    <del class="text-muted ml-2 font-weight-normal" style="font-size: 1.2rem;" th:if="${sanPham.giaKhuyenMai != null}" th:text="${#numbers.formatDecimal(sanPham.giaKhuyenMai, 0, 'COMMA', 0, 'POINT')} + 'đ'">45.000đ</del>
+                </h3>
+                <p class="text-muted mb-4" style="line-height: 1.8;" th:text="${sanPham.moTaChiTiet}">
+                    Sự kết hợp hoàn hảo giữa lá trà Oolong được rang mộc trên lửa nhỏ suốt 12 tiếng, hòa quyện cùng dòng sữa tươi thanh trùng béo ngậy. Kèm theo là trân châu đen nấu đường nâu dẻo dai sần sật. Thức uống tuyệt vời để xua tan mệt mỏi.
+                </p>
+
+                <hr style="border-color: #C8E6C9;">
+
+                <form id="orderForm" th:action="@{/cart/add}" method="post">
+                    <input type="hidden" name="productId" th:value="${sanPham.idSanPham}">
+                    <input type="hidden" id="hiddenMaCode" name="MaCode">
+
+                    <div class="mb-4 mt-4">
+                        <h6 class="fw-bold text-main mb-3">Chọn Size:</h6>
+                        <th:block th:each="size, iterStat : ${sizeList}">
+                            <input type="radio" name="Size" th:id="'size' + ${size.idSize}" th:value="${size.idSize}" class="custom-option-radio calc-trigger" th:data-price="${size.giaThem}" th:checked="${iterStat.index == 0}">
+                            <label th:for="'size' + ${size.idSize}" class="custom-option-label label-text" th:text="${size.tenSize} + ' (+' + ${#numbers.formatDecimal(size.giaThem, 0, 'COMMA', 0, 'POINT')} + 'đ)'">Size M (Mặc định)</label>
+                        </th:block>
+                    </div>
+
+
+
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-main mb-3">Thêm Topping (Có thể chọn nhiều):</h6>
+                        <th:block th:each="topping : ${toppingList}">
+                            <input type="checkbox" name="toppingIds" th:id="'topping' + ${topping.idTopping}" th:value="${topping.idTopping}" class="custom-option-checkbox calc-trigger" th:data-name="${topping.tenTopping}" th:data-price="${topping.gia}">
+                            <label th:for="'topping' + ${topping.idTopping}" class="custom-option-label" th:text="${topping.tenTopping} + ' (+' + ${#numbers.formatDecimal(topping.gia, 0, 'COMMA', 0, 'POINT')} + 'đ)'">Trân châu đen (+5.000đ)</label>
+                        </th:block>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="fw-bold text-main mb-2">Ghi chú cho quán (Tùy chọn):</label>
+                        <input type="text" id="noteInput" class="form-control rounded" name="GhiChu" style="border-color: #C8E6C9;" placeholder="VD: Xin thêm nhiều đá, bọc kỹ nắp...">
+                    </div>
+
+                    <div class="d-flex align-items-center mt-5 bg-light-green p-3 rounded border" style="border-color: #C8E6C9 !important;">
+                        <div class="d-flex align-items-center mr-4">
+                            <button type="button" class="btn qty-btn" onclick="updateQty(-1)">-</button>
+                            <input type="text" name="Quantity" id="qtyInput" value="1" class="qty-input" readonly>
+                            <button type="button" class="btn qty-btn" onclick="updateQty(1)">+</button>
+                        </div>
+
+                        <button th:if="${session.User != null}" type="button" id="btnOpenModal" class="btn btn-main btn-lg flex-grow-1 rounded-pill fw-bold shadow-sm d-flex justify-content-center align-items-center">
+                            🛍️ Mua ngay - <span class="displayBtnPrice ml-1"> 35.000đ</span>
+                        </button>
+                        <a th:if="${session.User == null}" th:href="@{/TaiKhoan/DangNhap}" class="btn btn-secondary btn-lg flex-grow-1 rounded-pill fw-bold shadow-sm d-flex justify-content-center align-items-center text-decoration-none" onclick="alert('Bạn cần đăng nhập để thực hiện chức năng này!');">
+                            🛍️ Mua ngay - <span class="displayBtnPrice ml-1"> 35.000đ</span>
+                        </a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container mt-5 mb-5 pt-4 border-top" style="border-color: #C8E6C9 !important;">
+    <h3 class="fw-bold text-main mb-4">Đánh Giá Sản Phẩm</h3>
+
+    <div class="row">
+        <div class="col-lg-4 mb-4 mb-lg-0">
+            <div class="bg-light-green rounded p-4 text-center border shadow-sm" style="border-color: #C8E6C9 !important;">
+                <h1 class="display-3 fw-bold text-accent mb-0">4.8</h1>
+                <div class="text-warning mb-2" style="font-size: 1.5rem;">★★★★★</div>
+                <p class="text-muted mb-4">Dựa trên 128 lượt đánh giá</p>
+
+                <button type="button" class="btn btn-outline-main rounded-pill px-4 fw-bold w-100" data-toggle="modal" data-target="#reviewModal">
+                    ✎ Viết đánh giá
+                </button>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="media mb-4 pb-4 border-bottom" style="border-color: #C8E6C9 !important;">
+                <img src="https://ui-avatars.com/api/?name=Nguyen+Van+A&background=00B14F&color=fff" alt="Avatar" class="rounded-circle mr-3 shadow-sm" style="width: 50px; height: 50px; object-fit: cover;">
+                <div class="media-body">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h6 class="fw-bold text-main mb-0">Nguyễn Văn A</h6>
+                        <span class="text-muted small">15/05/2026</span>
+                    </div>
+                    <div class="text-warning small mb-2">★★★★★</div>
+                    <p class="text-muted mb-2">Trà sữa đậm vị oolong rất ngon, trân châu dai mềm vừa tới. Giao hàng cực kỳ nhanh, shipper thân thiện. Sẽ ủng hộ quán dài dài!</p>
+                    <img src="https://i.pinimg.com/736x/81/a4/bb/81a4bbf789dc005db307140990fcad69.jpg" alt="Ảnh đánh giá" class="rounded shadow-sm mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                </div>
+            </div>
+
+            <div class="media mb-4 pb-4 border-bottom" style="border-color: #C8E6C9 !important;">
+                <img src="https://ui-avatars.com/api/?name=Tran+B&background=006241&color=fff" alt="Avatar" class="rounded-circle mr-3 shadow-sm" style="width: 50px; height: 50px; object-fit: cover;">
+                <div class="media-body">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h6 class="fw-bold text-main mb-0">Trần Thị B</h6>
+                        <span class="text-muted small">12/05/2026</span>
+                    </div>
+                    <div class="text-warning small mb-2">★★★★<span class="text-muted">★</span></div>
+                    <p class="text-muted mb-0">Nước ngon nhưng hôm nay quán quên cho thêm đá như mình đã ghi chú. Hơi buồn một xíu nhưng vị trà vẫn rất oke.</p>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button class="btn btn-outline-secondary rounded-pill px-4">Xem thêm đánh giá ▾</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container mb-5 mt-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <h3 class="fw-bold text-main mb-0">Có Thể Bạn Sẽ Thích</h3>
+        <a th:href="@{/menu}" class="text-accent text-decoration-none fw-bold">Xem menu &rarr;</a>
+    </div>
+
+    <div class="row">
+        <th:block th:each="sp : ${relatedProducts}">
+            <div class="col-sm-6 col-md-3 mb-4">
+                <div class="card border-0 bg-white shadow-sm hover-card rounded h-100 overflow-hidden">
+                    <img th:src="${sp.hinhAnh}" class="card-img-top" th:alt="${sp.tenSanPham}" style="height: 250px; object-fit: cover;">
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title text-main fw-bold" th:text="${sp.tenSanPham}">Cà Phê Sữa Đá</h6>
+                        <div class="mt-auto d-flex justify-content-between align-items-center pt-2">
+                            <span class="fw-bold text-accent" th:text="${#numbers.formatDecimal(sp.gia, 0, 'COMMA', 0, 'POINT')} + 'đ'">29.000đ</span>
+                            <a th:href="@{/detail(id=${sp.idSanPham})}" class="btn btn-outline-main btn-sm rounded-circle" style="width: 30px; height: 30px; padding: 2px;">+</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+    </div>
+</section>
+
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded border-0 shadow">
+            <div class="modal-header bg-light-green border-bottom-0">
+                <h5 class="modal-title fw-bold text-main" id="reviewModalLabel">Gửi đánh giá của bạn</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form th:action="@{/product/submitReview}" method="post" enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <div class="mb-3 text-center">
+                        <label class="form-label fw-bold text-main d-block mb-2">Chất lượng sản phẩm:</label>
+                        <select name="SoSao" class="form-control text-warning fw-bold border-accent text-center mx-auto" style="width: 150px; height: auto;">
+                            <option value="5">★★★★★ (5 Sao)</option>
+                            <option value="4">★★★★☆ (4 Sao)</option>
+                            <option value="3">★★★☆☆ (3 Sao)</option>
+                            <option value="2">★★☆☆☆ (2 Sao)</option>
+                            <option value="1">★☆☆☆☆ (1 Sao)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-main">Chia sẻ trải nghiệm của bạn:</label>
+                        <textarea class="form-control rounded" name="NoiDung" rows="4" placeholder="Sản phẩm có ngon không? Phục vụ thế nào?..." required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-main">Thêm hình ảnh (Tùy chọn):</label>
+                        <input class="form-control-file" type="file" name="HinhAnhUpload" accept="image/*">
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 justify-content-center pb-4">
+                    <button type="submit" class="btn btn-main rounded-pill px-5 py-2 fw-bold shadow-sm">Gửi Đánh Giá</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmOrderModal" tabindex="-1" aria-labelledby="confirmOrderLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded border-0 shadow-lg">
+            <div class="modal-header bg-light-green border-bottom-0">
+                <h5 class="modal-title fw-bold text-main" id="confirmOrderLabel">Xác nhận tùy chọn của bạn</h5>
+                <button type="button" class="close text-danger" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body p-4 text-dark">
+                <h5 class="fw-bold mb-3" th:text="${sanPham.tenSanPham}">Trà Sữa Trân Châu Oolong Đậm Vị</h5>
+                <table class="table table-borderless table-sm mb-0">
+                    <tr>
+                        <td class="text-muted" width="30%">Kích cỡ:</td>
+                        <td class="fw-bold" id="previewSize">Size M</td>
+                    </tr>
+
+                    <tr>
+                        <td class="text-muted">Topping:</td>
+                        <td class="fw-bold text-accent" id="previewToppings">Không có</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Ghi chú:</td>
+                        <td class="fw-bold" id="previewNote">Không</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Số lượng:</td>
+                        <td class="fw-bold" id="previewQty">1</td>
+                    </tr>
+                </table>
+                <hr style="border-color: #C8E6C9;">
+                <div class="mb-3">
+                    <label class="text-muted small fw-bold">Mã giảm giá (Nếu có):</label>
+                    <div class="input-group">
+                        <input type="text" id="modalMaCode" class="form-control" placeholder="Nhập mã...">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-main" type="button" id="btnApplyDiscount">Áp dụng</button>
+                        </div>
+                    </div>
+                    <small id="discountMessage" class="form-text mt-1"></small>
+                </div>
+                
+                <div id="discountInfoBlock" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <span class="text-muted">Giá gốc:</span>
+                        <span class="text-muted text-decoration-line-through" id="previewOriginalTotal">35.000đ</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-1">
+                        <span class="text-muted">Giảm giá:</span>
+                        <span class="text-danger fw-bold" id="previewDiscountAmount">-0đ</span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-3 border-top pt-2">
+                    <span class="fw-bold fs-5 text-main">Tổng tạm tính:</span>
+                    <h3 class="fw-bold text-accent mb-0" id="previewTotal">35.000đ</h3>
+                </div>
+            </div>
+
+            <div class="modal-footer border-top-0 d-flex justify-content-between p-4 bg-light-green rounded-bottom">
+                <button type="button" class="btn btn-outline-main rounded-pill font-weight-bold px-4" onclick="submitOrder('/cart/add')">
+                    🛒 Thêm vào giỏ
+                </button>
+                <button type="button" class="btn btn-main rounded-pill font-weight-bold px-5" onclick="submitOrder('/checkout/direct')">
+                    Thanh toán <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script th:inline="javascript">
+    const basePrice = /*[[${sanPham.gia}]]*/ 35000;
+
+    function calculateTotal() {
+        let currentTotal = basePrice;
+        let sizePrice = parseInt($('input[name="Size"]:checked').attr('data-price')) || 0;
+        currentTotal += sizePrice;
+
+        $('input[name="toppingIds"]:checked').each(function() {
+            currentTotal += parseInt($(this).attr('data-price')) || 0;
+        });
+
+        let qty = parseInt($('#qtyInput').val());
+        currentTotal = currentTotal * qty;
+
+        $('.displayBtnPrice').text(currentTotal.toLocaleString('vi-VN') + 'đ');
+        return currentTotal;
+    }
+
+    function updateQty(val) {
+        var input = document.getElementById('qtyInput');
+        var currentVal = parseInt(input.value);
+        var newVal = currentVal + val;
+        if (newVal >= 1 && newVal <= 20) {
+            input.value = newVal;
+            calculateTotal();
+        }
+    }
+
+    $('.calc-trigger').change(function() {
+        calculateTotal();
+    });
+
+    // Xử lý mở Modal Mua Ngay
+    $('#btnOpenModal').click(function() {
+        let sizeText = $('input[name="Size"]:checked').next('.label-text').text().split(' (')[0];
+        let noteText = $('#noteInput').val().trim() || 'Không có';
+        let qty = $('#qtyInput').val();
+
+        let selectedToppings = [];
+        $('input[name="toppingIds"]:checked').each(function() {
+            selectedToppings.push($(this).attr('data-name'));
+        });
+        let toppingsDisplay = selectedToppings.length > 0 ? selectedToppings.join(', ') : 'Không có';
+
+        let finalPrice = calculateTotal();
+
+        $('#previewSize').text(sizeText);
+        $('#previewToppings').text(toppingsDisplay);
+        $('#previewNote').text(noteText);
+        $('#previewQty').text(qty);
+        $('#previewTotal').text(finalPrice.toLocaleString('vi-VN') + 'đ');
+        
+        // Reset discount modal states
+        $('#modalMaCode').val('');
+        $('#discountMessage').text('');
+        $('#discountInfoBlock').hide();
+        window.currentCalculatedTotal = finalPrice;
+
+        $('#confirmOrderModal').modal('show');
+    });
+
+    $('#btnApplyDiscount').click(function() {
+        let code = $('#modalMaCode').val().trim();
+        let total = window.currentCalculatedTotal || calculateTotal();
+        let msgEl = $('#discountMessage');
+        let infoBlock = $('#discountInfoBlock');
+        
+        if (!code) {
+            msgEl.text('Vui lòng nhập mã giảm giá.').css('color', 'red');
+            return;
+        }
+        
+        msgEl.text('Đang kiểm tra...').css('color', 'gray');
+        
+        $.ajax({
+            url: '/api/discount/check',
+            type: 'POST',
+            data: { maCode: code, tongTien: total },
+            success: function(res) {
+                if(res.valid) {
+                    msgEl.text(res.message).css('color', 'green');
+                    infoBlock.show();
+                    $('#previewOriginalTotal').text(total.toLocaleString('vi-VN') + 'đ');
+                    $('#previewDiscountAmount').text('-' + res.tienGiam.toLocaleString('vi-VN') + 'đ');
+                    
+                    let finalPrice = total - res.tienGiam;
+                    $('#previewTotal').text(finalPrice.toLocaleString('vi-VN') + 'đ');
+                } else {
+                    msgEl.text(res.message).css('color', 'red');
+                    infoBlock.hide();
+                    $('#previewTotal').text(total.toLocaleString('vi-VN') + 'đ');
+                }
+            },
+            error: function() {
+                msgEl.text('Có lỗi xảy ra khi kiểm tra mã.').css('color', 'red');
+                infoBlock.hide();
+                $('#previewTotal').text(total.toLocaleString('vi-VN') + 'đ');
+            }
+        });
+    });
+
+    function submitOrder(actionUrl) {
+        let form = $('#orderForm');
+        $('#hiddenMaCode').val($('#modalMaCode').val());
+        form.attr('action', actionUrl);
+        form.submit();
+    }
+    // --- FIX LỖI NÚT X KHÔNG TẮT ĐƯỢC POPUP ---
+    $('.close').on('click', function() {
+        // Tự động tìm và đóng bất kỳ popup nào đang mở
+        $(this).closest('.modal').modal('hide');
+    });
+</script>
+
+</body>
+</html>

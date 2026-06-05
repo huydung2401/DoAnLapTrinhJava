@@ -40,4 +40,8 @@ public class ChiTietGioHang {
     @ManyToOne
     @JoinColumn(name = "IdSize")
     private SizeSanPham sizeSanPham;
+
+    public Double getThanhTien() {
+        return (this.DonGia != null && this.SoLuong != null) ? this.DonGia * this.SoLuong : 0.0;
+    }
 }

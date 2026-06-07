@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/fragments/admin-layout :: layout('Quản lý Đơn hàng', ~{::#main-content})}">
+<body>
+    <div id="main-content">
+        <div class="admin-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="card-title"><i class="fas fa-shopping-bag me-2 text-primary"></i>Danh sách Đơn hàng</h4>
+            </div>
+            <div class="card-body">
+
+                <!-- Filter by status -->
+                <form th:action="@{/admin/donhang}" method="get" class="mb-4">
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a th:href="@{/admin/donhang}"
+                           th:class="${trangThaiFilter == null} ? 'btn btn-primary btn-sm' : 'btn btn-outline-secondary btn-sm'">
+                            Tất cả
+                        </a>
+                        <a th:href="@{/admin/donhang(trangThai='CHO_XAC_NHAN')}"
+                           th:class="${trangThaiFilter == 'CHO_XAC_NHAN'} ? 'btn btn-warning btn-sm text-dark' : 'btn btn-outline-warning btn-sm'">
+                            ⏳ Chờ xác nhận
+                        </a>
+                        <a th:href="@{/admin/donhang(trangThai='DA_XAC_NHAN')}"
+                           th:class="${trangThaiFilter == 'DA_XAC_NHAN'} ? 'btn btn-info btn-sm text-white' : 'btn btn-outline-info btn-sm'">
+                            ✅ Đã xác nhận
+                        </a>
+                        <a th:href="@{/admin/donhang(trangThai='DANG_PHA_CHE')}"
+                           th:class="${trangThaiFilter == 'DANG_PHA_CHE'} ? 'btn btn-purple btn-sm' : 'btn btn-outline-secondary btn-sm'">
+                            🧪 Đang pha chế
+                        </a>
+                        <a th:href="@{/admin/donhang(trangThai='DANG_GIAO')}"
+                           th:class="${trangThaiFilter == 'DANG_GIAO'} ? 'btn btn-primary btn-sm' : 'btn btn-outline-primary btn-sm'">
+                            🚚 Đang giao
+                        </a>
+                        <a th:href="@{/admin/donhang(trangThai='HOAN_THANH')}"
+                           th:class="${trangThaiFilter == 'HOAN_THANH'} ? 'btn btn-success btn-sm' : 'btn btn-outline-success btn-sm'">
+                            🎉 Hoàn thành
+                        </a>
+                        <a th:href="@{/admin/donhang(trangThai='DA_HUY')}"
+                           th:class="${trangThaiFilter == 'DA_HUY'} ? 'btn btn-danger btn-sm' : 'btn btn-outline-danger btn-sm'">
+                            ❌ Đã hủy
+                        </a>
+                    </div>
+                </form>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table table-admin">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>SĐT</th>
+                                <th>Tổng tiền</th>
+                                <th>Thanh toán</th>
+                                <th>Ngày đặt</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="dh : ${listDonHang}" th:id="'row-dh-' + ${dh.idDonHang}">
+                                <td><strong th:text="'#' + ${dh.idDonHang}"></strong></td>
+                                <td>
+                                    <span th:text="${dh.hoTenNguoiNhan}"></span>
+                                    <br>
+                                    <small class="text-muted" th:if="${dh.nguoiDung != null}"
+                                           th:text="'KH: ' + ${dh.nguoiDung.hoTen}"></small>
+                                </td>
+                                <td th:text="${dh.soDienThoai}"></td>
+                                <td>
+                                    <span class="fw-bold text-success"
+                                          th:text="${#numbers.formatDecimal(dh.tongTien, 0, 'COMMA', 0, 'POINT') + ' đ'}"></span>
+                                </td>
+                                <td>
+                                    <span th:class="${dh.phuongThucThanhToan == 'BANKING'} ? 'badge bg-info' : 'badge bg-secondary'"
+                                          th:text="${dh.phuongThucThanhToan}"></span>
+                                </td>
+                                <td th:text="${dh.ngayDat != null ? #temporals.format(dh.ngayDat, 'dd/MM/yyyy HH:mm') : '—'}"></td>
+                                <td th:switch="${dh.trangThai}">
+                                    <span th:case="'CHO_XAC_NHAN'" th:id="'badge-dh-' + ${dh.idDonHang}" class="badge bg-warning text-dark">Chờ xác nhận</span>
+                                    <span th:case="'DA_XAC_NHAN'" th:id="'badge-dh-' + ${dh.idDonHang}" class="badge bg-info text-white">Đã xác nhận</span>
+                                    <span th:case="'DANG_PHA_CHE'" th:id="'badge-dh-' + ${dh.idDonHang}" class="badge status-phe-che">Đang pha chế</span>
+                                    <span th:case="'DANG_GIAO'" th:id="'badge-dh-' + ${dh.idDonHang}" class="badge bg-primary">Đang giao</span>
+                                    <span th:case="'HOAN_THANH'" th:id="'badge-dh-' + ${dh.idDonHang}" class="badge bg-success">Hoàn thành</span>
+                                    <span th:case="'DA_HUY'" th:id="'badge-dh-' + ${dh.idDonHang}" class="badge bg-danger">Đã hủy</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <a th:href="@{/admin/donhang/chitiet/{id}(id=${dh.idDonHang})}"
+                                           class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button th:if="${dh.trangThai != 'HOAN_THANH' && dh.trangThai != 'DA_HUY'}"
+                                                class="btn btn-sm btn-success"
+                                                th:onclick="'nextStatus(' + ${dh.idDonHang} + ')'"
+                                                title="Chuyển bước tiếp">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </button>
+                                        <button th:if="${dh.trangThai != 'HOAN_THANH' && dh.trangThai != 'DA_HUY'}"
+                                                class="btn btn-sm btn-danger"
+                                                th:onclick="'huyDon(' + ${dh.idDonHang} + ')'"
+                                                title="Hủy đơn">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(listDonHang)}">
+                                <td colspan="8" class="text-center text-muted py-5">
+                                    <i class="fas fa-shopping-bag fa-3x mb-3 d-block text-light"></i>
+                                    Không có đơn hàng nào.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const trangThaiLabel = {
+                'CHO_XAC_NHAN': 'Chờ xác nhận', 'DA_XAC_NHAN': 'Đã xác nhận',
+                'DANG_PHA_CHE': 'Đang pha chế', 'DANG_GIAO': 'Đang giao',
+                'HOAN_THANH': 'Hoàn thành', 'DA_HUY': 'Đã hủy'
+            };
+            const trangThaiClass = {
+                'CHO_XAC_NHAN': 'badge bg-warning text-dark', 'DA_XAC_NHAN': 'badge bg-info text-white',
+                'DANG_PHA_CHE': 'badge status-phe-che', 'DANG_GIAO': 'badge bg-primary',
+                'HOAN_THANH': 'badge bg-success', 'DA_HUY': 'badge bg-danger'
+            };
+
+            function updateDonHang(id, hanhDong) {
+                fetch('/admin/donhang/update-status/' + id, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hanhDong })
+                })
+                .then(r => {
+                    if (!r.ok) { r.text().then(t => alert('Lỗi: ' + t)); return; }
+                    return r.json();
+                })
+                .then(data => {
+                    if (!data) return;
+                    window.location.reload();
+                })
+                .catch(() => alert('Có lỗi xảy ra!'));
+            }
+
+            function nextStatus(id) {
+                if (!confirm('Xác nhận chuyển đơn hàng sang bước tiếp theo?')) return;
+                updateDonHang(id, 'NEXT');
+            }
+
+            function huyDon(id) {
+                if (!confirm('Xác nhận HỦY đơn hàng này?')) return;
+                updateDonHang(id, 'HUY');
+            }
+        </script>
+    </div>
+</body>
+</html>

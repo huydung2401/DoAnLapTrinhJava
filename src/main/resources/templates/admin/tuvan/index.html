@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/fragments/admin-layout :: layout('Quản lý Tư vấn', ~{::#main-content})}">
+<body>
+    <div id="main-content">
+
+        <!-- Stats -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(255,199,0,0.1); color: #ffc700;">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${soChoPhanHoi}">0</div>
+                        <div class="stat-label">Yêu cầu chờ phản hồi</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="card-header">
+                <h4 class="card-title"><i class="fas fa-comments me-2 text-primary"></i>Danh sách Yêu cầu Tư vấn</h4>
+            </div>
+            <div class="card-body">
+
+                <!-- Filter -->
+                <div class="d-flex gap-2 mb-4">
+                    <a th:href="@{/admin/tuvan}"
+                       th:class="${trangThaiFilter == null} ? 'btn btn-primary btn-sm' : 'btn btn-outline-secondary btn-sm'">
+                        Tất cả
+                    </a>
+                    <a th:href="@{/admin/tuvan(trangThai='CHO_PHAN_HOI')}"
+                       th:class="${trangThaiFilter == 'CHO_PHAN_HOI'} ? 'btn btn-warning btn-sm text-dark' : 'btn btn-outline-warning btn-sm'">
+                        ⏳ Chờ phản hồi
+                    </a>
+                    <a th:href="@{/admin/tuvan(trangThai='DA_PHAN_HOI')}"
+                       th:class="${trangThaiFilter == 'DA_PHAN_HOI'} ? 'btn btn-success btn-sm' : 'btn btn-outline-success btn-sm'">
+                        ✅ Đã phản hồi
+                    </a>
+                </div>
+
+                <!-- Danh sách tư vấn dạng card -->
+                <div class="list-group">
+                    <div th:each="tv : ${listTuVan}"
+                         th:id="'tv-item-' + ${tv.idTuVan}"
+                         class="list-group-item p-4 mb-3 border rounded shadow-sm">
+
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h6 class="fw-bold mb-1">
+                                    <i class="fas fa-user-circle text-secondary me-1"></i>
+                                    <span th:text="${tv.user != null ? tv.user.hoTen : 'Khách ẩn danh'}"></span>
+                                </h6>
+                                <small class="text-muted" th:if="${tv.user != null}" th:text="${tv.user.email}"></small>
+                                <br>
+                                <small class="text-muted" th:text="${tv.ngayGui != null ? #temporals.format(tv.ngayGui, 'dd/MM/yyyy HH:mm') : ''}"></small>
+                            </div>
+                            <span th:class="${tv.trangThai == 'CHO_PHAN_HOI'} ? 'badge bg-warning text-dark' : 'badge bg-success'"
+                                  th:text="${tv.trangThai == 'CHO_PHAN_HOI'} ? '⏳ Chờ phản hồi' : '✅ Đã phản hồi'"></span>
+                        </div>
+
+                        <!-- Nội dung yêu cầu -->
+                        <div class="bg-light p-3 rounded mb-3">
+                            <small class="fw-bold text-muted d-block mb-1">Nội dung yêu cầu:</small>
+                            <p class="mb-0" th:text="${tv.noiDung}"></p>
+                        </div>
+
+                        <!-- Phản hồi Admin (nếu có) -->
+                        <div th:id="'admin-reply-' + ${tv.idTuVan}"
+                             th:style="${tv.phanHoiAdmin != null && !tv.phanHoiAdmin.isEmpty()} ? 'display:block' : 'display:none'"
+                             class="border-start border-4 border-primary bg-light p-3 rounded mb-3">
+                            <small class="fw-bold text-primary d-block mb-1">Phản hồi từ Admin:</small>
+                            <p class="mb-0" th:id="'reply-text-' + ${tv.idTuVan}" th:text="${tv.phanHoiAdmin}"></p>
+                        </div>
+
+                        <!-- Form phản hồi -->
+                        <div class="collapse mt-2" th:id="'reply-form-' + ${tv.idTuVan}">
+                            <div class="card card-body bg-light">
+                                <textarea th:id="'inp-reply-' + ${tv.idTuVan}"
+                                          class="form-control mb-2" rows="3"
+                                          placeholder="Nhập nội dung phản hồi tư vấn..."
+                                          th:text="${tv.phanHoiAdmin}"></textarea>
+                                <button type="button" class="btn btn-primary btn-sm"
+                                        th:onclick="'sendReply(' + ${tv.idTuVan} + ')'">
+                                    <i class="fas fa-paper-plane me-1"></i>Gửi phản hồi
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Nút thao tác -->
+                        <div class="d-flex gap-2 mt-2">
+                            <button class="btn btn-sm btn-outline-primary" type="button"
+                                    data-bs-toggle="collapse"
+                                    th:data-bs-target="'#reply-form-' + ${tv.idTuVan}">
+                                <i class="fas fa-reply me-1"></i>
+                                <span th:text="${tv.phanHoiAdmin != null && !tv.phanHoiAdmin.isEmpty()} ? 'Sửa phản hồi' : 'Phản hồi'"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(listTuVan)}" class="text-center text-muted py-5">
+                        <i class="fas fa-comments fa-3x mb-3 d-block text-light"></i>
+                        Không có yêu cầu tư vấn nào.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function sendReply(id) {
+                const noiDung = document.getElementById('inp-reply-' + id).value.trim();
+                if (!noiDung) { alert('Vui lòng nhập nội dung phản hồi!'); return; }
+
+                fetch('/admin/tuvan/reply/' + id, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ noiDung })
+                })
+                .then(r => {
+                    if (r.ok) {
+                        alert('Đã gửi phản hồi tư vấn!');
+                        // Cập nhật UI trực tiếp
+                        const replyBox = document.getElementById('admin-reply-' + id);
+                        const replyText = document.getElementById('reply-text-' + id);
+                        replyText.textContent = noiDung;
+                        replyBox.style.display = 'block';
+                        // Đóng form
+                        const colEl = document.getElementById('reply-form-' + id);
+                        const bsc = bootstrap.Collapse.getInstance(colEl) || new bootstrap.Collapse(colEl, { toggle: false });
+                        bsc.hide();
+                    } else {
+                        r.text().then(t => alert('Lỗi: ' + t));
+                    }
+                })
+                .catch(() => alert('Có lỗi xảy ra!'));
+            }
+        </script>
+    </div>
+</body>
+</html>

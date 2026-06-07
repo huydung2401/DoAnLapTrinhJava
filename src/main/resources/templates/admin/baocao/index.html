@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/fragments/admin-layout :: layout('Báo cáo Doanh thu', ~{::#main-content})}">
+<body>
+    <div id="main-content">
+
+        <!-- Stats summary -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(80,205,137,0.1); color: #50cd89;">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${#numbers.formatDecimal(tongDoanhThu, 0, 'COMMA', 0, 'POINT') + ' đ'}">0</div>
+                        <div class="stat-label">Tổng doanh thu</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(0,158,247,0.1); color: #009ef7;">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${tongDonHoanThanh}">0</div>
+                        <div class="stat-label">Đơn hoàn thành</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(241,65,108,0.1); color: #f1416c;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${tongKhachHang}">0</div>
+                        <div class="stat-label">Tổng khách hàng</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ -->
+        <div class="admin-card">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h4 class="card-title"><i class="fas fa-chart-bar me-2 text-primary"></i>Biểu đồ Doanh thu</h4>
+                <div class="d-flex gap-2 flex-wrap align-items-center">
+                    <!-- Tab chế độ -->
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-primary active" id="btn-thang" onclick="setMode('thang')">Theo tháng</button>
+                        <button type="button" class="btn btn-outline-primary" id="btn-nam" onclick="setMode('nam')">Theo năm</button>
+                        <button type="button" class="btn btn-outline-primary" id="btn-ngay" onclick="setMode('ngay')">Theo ngày</button>
+                    </div>
+
+                    <!-- Chọn năm (cho mode tháng) -->
+                    <div id="ctrl-thang" class="d-flex gap-2 align-items-center">
+                        <label class="form-label mb-0 small">Năm:</label>
+                        <select id="sel-nam" class="form-select form-select-sm" style="width:auto;" onchange="loadThang()">
+                            <option th:each="n : ${danhSachNam}" th:value="${n}" th:text="${n}"
+                                    th:selected="${n == namHienTai.toString()}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Khoảng ngày (cho mode ngày) -->
+                    <div id="ctrl-ngay" class="d-flex gap-2 align-items-center" style="display:none!important;">
+                        <input type="date" id="inp-tu" class="form-control form-control-sm" style="width:150px;">
+                        <span>—</span>
+                        <input type="date" id="inp-den" class="form-control form-control-sm" style="width:150px;">
+                        <button class="btn btn-primary btn-sm" onclick="loadNgay()">Xem</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div style="position:relative; height:320px;">
+                    <canvas id="doanhThuChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bảng chi tiết theo tháng -->
+        <div class="admin-card mt-4" id="table-section">
+            <div class="card-header">
+                <h5 class="card-title"><i class="fas fa-table me-2 text-primary"></i>Bảng chi tiết Doanh thu theo tháng</h5>
+                <span id="year-title" th:text="'Năm ' + ${namHienTai}" class="badge bg-primary"></span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-admin mb-0">
+                        <thead>
+                            <tr>
+                                <th>Tháng</th>
+                                <th class="text-end">Doanh thu</th>
+                                <th>Biểu diễn</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <tr th:each="i, stat : ${doanhThuThang}">
+                                <td th:text="'Tháng ' + ${stat.index + 1}"></td>
+                                <td class="text-end fw-bold text-success"
+                                    th:text="${#numbers.formatDecimal(i, 0, 'COMMA', 0, 'POINT') + ' đ'}"></td>
+                                <td style="width: 40%">
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-success" role="progressbar"
+                                             style="width: 0%"
+                                             th:data-value="${i}"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <script th:inline="javascript">
+            // Khởi tạo dữ liệu từ server
+            const initialLabels = /*[[${labelsThang}]]*/ [];
+            const initialData = /*[[${doanhThuThang}]]*/ [];
+            const currentYear = /*[[${namHienTai}]]*/ 2026;
+
+            let chart;
+            let currentMode = 'thang';
+
+            // Khởi tạo chart
+            function initChart(labels, data, label) {
+                const ctx = document.getElementById('doanhThuChart').getContext('2d');
+                if (chart) chart.destroy();
+                chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: label || 'Doanh thu (đ)',
+                            data: data,
+                            backgroundColor: 'rgba(0, 158, 247, 0.2)',
+                            borderColor: '#009ef7',
+                            borderWidth: 2,
+                            borderRadius: 6,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => ctx.parsed.y.toLocaleString('vi-VN') + ' đ'
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: v => v.toLocaleString('vi-VN') + ' đ'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function setMode(mode) {
+                currentMode = mode;
+                document.getElementById('ctrl-thang').style.display = mode === 'thang' ? 'flex' : 'none';
+                document.getElementById('ctrl-ngay').style.display = mode === 'ngay' ? 'flex' : 'none';
+                ['btn-thang', 'btn-nam', 'btn-ngay'].forEach(id => {
+                    document.getElementById(id).className = 'btn btn-outline-primary';
+                });
+                document.getElementById('btn-' + mode).className = 'btn btn-primary';
+                if (mode === 'thang') loadThang();
+                else if (mode === 'nam') loadNam();
+            }
+
+            function loadThang() {
+                const nam = document.getElementById('sel-nam').value;
+                document.getElementById('year-title').textContent = 'Năm ' + nam;
+                fetch('/admin/baocao/data/thang?nam=' + nam)
+                .then(r => r.json())
+                .then(d => {
+                    initChart(d.labels, d.data, 'Doanh thu theo tháng');
+                    updateTable(d.labels, d.data);
+                });
+            }
+
+            function loadNam() {
+                fetch('/admin/baocao/data/nam')
+                .then(r => r.json())
+                .then(d => initChart(d.labels, d.data, 'Doanh thu theo năm'));
+            }
+
+            function loadNgay() {
+                const tu = document.getElementById('inp-tu').value;
+                const den = document.getElementById('inp-den').value;
+                if (!tu || !den) { alert('Vui lòng chọn khoảng ngày!'); return; }
+                fetch('/admin/baocao/data/ngay?tuNgay=' + tu + '&denNgay=' + den)
+                .then(r => r.json())
+                .then(d => initChart(d.labels, d.data, 'Doanh thu theo ngày'));
+            }
+
+            function updateTable(labels, data) {
+                const tbody = document.getElementById('table-body');
+                const maxVal = Math.max(...data, 1);
+                tbody.innerHTML = labels.map((l, i) => {
+                    const pct = Math.round((data[i] / maxVal) * 100);
+                    const fmt = data[i].toLocaleString('vi-VN') + ' đ';
+                    return `<tr>
+                        <td>${l}</td>
+                        <td class="text-end fw-bold text-success">${fmt}</td>
+                        <td style="width:40%">
+                            <div class="progress" style="height:8px;">
+                                <div class="progress-bar bg-success" style="width:${pct}%"></div>
+                            </div>
+                        </td>
+                    </tr>`;
+                }).join('');
+            }
+
+            // Set ngày mặc định cho date picker
+            const today = new Date();
+            const d30 = new Date(); d30.setDate(d30.getDate() - 29);
+            document.getElementById('inp-tu').value = d30.toISOString().substring(0, 10);
+            document.getElementById('inp-den').value = today.toISOString().substring(0, 10);
+
+            // Render chart ban đầu
+            initChart(initialLabels, initialData, 'Doanh thu theo tháng ' + currentYear);
+
+            // Điều chỉnh progress bar bảng
+            window.addEventListener('load', () => {
+                const allVals = Array.from(document.querySelectorAll('[data-value]')).map(e => parseFloat(e.dataset.value));
+                const maxVal = Math.max(...allVals, 1);
+                document.querySelectorAll('[data-value]').forEach(el => {
+                    const pct = Math.round((parseFloat(el.dataset.value) / maxVal) * 100);
+                    el.style.width = pct + '%';
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>

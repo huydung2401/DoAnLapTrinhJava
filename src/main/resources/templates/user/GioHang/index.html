@@ -1,308 +1,160 @@
-<!doctype html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8"/>
+    <meta charset="UTF-8">
     <title>Giỏ hàng của bạn</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
-    <link rel="stylesheet" th:href="@{/css/home.css}"/>
-    <link rel="stylesheet" th:href="@{/css/logIn.css}"/>
-    <link rel="stylesheet" th:href="@{/css/footer.css}"/>
-    <link rel="stylesheet" th:href="@{/css/popup-cart.css}"/>
-    
-    <style>
-        body {
-            background: #f5f6fa;
-        }
-        
-        .cart-card {
-            border: none;
-            border-radius: 16px;
-            overflow: hidden;
-            transition: 0.3s;
-        }
-        
-        .cart-card:hover {
-            transform: translateY(-2px);
-        }
-        
-        .cart-img {
-            width: 120px;
-            height: 120px;
-            object-fit: cover;
-            border-radius: 12px;
-        }
-        
-        .quantity-box {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 10px;
-        }
-        
-        .qty-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 1px solid #ddd;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        
-        .qty-btn:hover {
-            background: #e9ecef;
-            border-color: #bbb;
-        }
-        
-        .qty {
-            font-weight: 600;
-            font-size: 16px;
-            min-width: 20px;
-            text-align: center;
-        }
-        
-        .order-box {
-            position: sticky;
-            top: 20px;
-            border: none;
-            border-radius: 16px;
-        }
-        
-        textarea {
-            resize: none;
-        }
-        
-        .price {
-            font-size: 18px;
-            font-weight: 700;
-            color: #dc3545;
-        }
-        
-        .total-price {
-            font-size: 24px;
-            font-weight: 700;
-            color: #dc3545;
-        }
-    </style>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 
 <body>
-<div th:replace="~{fragments/header :: header}"></div>
 
-<div class="container py-5">
-    <h2 class="fw-bold text-center mb-2">GIỎ HÀNG CỦA BẠN</h2>
-    
-    <div class="text-center text-muted mb-4" th:if="${gioHang != null}">
-        Có <b th:text="${#lists.size(gioHang.chiTietGioHangs)}"></b> sản phẩm
-        trong giỏ hàng
-    </div>
-    
-    <div th:if="${gioHang == null or #lists.isEmpty(gioHang.chiTietGioHangs)}" class="text-center py-5">
-        <i class="fa-solid fa-cart-shopping fa-4x text-secondary mb-3"></i>
+<div class="container mt-5">
+
+    <h2 class="fw-bold text-center mb-4">
+        GIỎ HÀNG CỦA BẠN
+    </h2>
+
+    <!-- GIỎ HÀNG TRỐNG -->
+
+    <div th:if="${gioHang == null or #lists.isEmpty(gioHang.chiTietGioHangs)}"
+         class="text-center py-5">
+
         <h4>Giỏ hàng của bạn đang trống</h4>
-        <a th:href="@{/home}" class="btn btn-primary mt-3">Tiếp tục mua sắm</a>
+
+        <a th:href="@{/}"
+           class="btn btn-primary mt-3">
+
+            Tiếp tục mua sắm
+
+        </a>
+
     </div>
-    
+
+    <!-- CÓ SẢN PHẨM -->
+
     <div th:unless="${gioHang == null or #lists.isEmpty(gioHang.chiTietGioHangs)}">
+
         <div class="row">
-            <div class="col-lg-8">
-                <div th:each="item : ${gioHang.chiTietGioHangs}" class="card shadow-sm mb-3 cart-card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-start">
-                            <img th:src="@{${item.sanPham.hinhAnh}}" class="cart-img me-3" alt="Product Image"/>
-                            
-                            <div class="flex-grow-1">
-                                <h5 class="fw-bold mb-1" th:text="${item.sanPham.tenSanPham}">
-                                    Tên sản phẩm </h5>
-                                
-                                <div class="text-muted small mb-1" th:if="${item.sizeSanPham != null}">
-                                    Size: <b th:text="${item.sizeSanPham.tenSize}">S</b>
-                                </div>
-                                
-                                <div class="text-muted small mb-1"
-                                     th:if="${item.toppings != null and !#lists.isEmpty(item.toppings)}">
-                                    <b>Topping:</b>
-                                    <span th:each="tp, iter : ${item.toppings}">
-                        <span th:if="${tp.topping != null}" th:text="${tp.topping.tenTopping}">Topping</span>
-                        <span th:if="${tp.topping == null}" th:text="${tp.tenTopping}">Topping</span>
-                        <span th:if="${!iter.last}">, </span>
-                      </span>
-                                </div>
-                                
-                                <div class="text-muted small mb-2" th:if="${item.ghiChu != null and item.ghiChu != ''}">
-                                    Ghi chú: <i th:text="${item.ghiChu}">Ghi chú</i>
-                                </div>
-                                
-                                <div class="price mb-2"
-                                     th:text="${#numbers.formatDecimal(item.thanhTien,0,'COMMA',0,'POINT')} + ' đ'">
-                                    0 đ
-                                </div>
-                                
-                                <div class="quantity-box">
-                                    <button type="button" class="qty-btn"
-                                            th:onclick="'giamSoLuong(' + ${item.idChiTietGioHang} + ', this)'">
-                                        -
-                                    </button>
-                                    <span class="qty" th:text="${item.soLuong}">1</span>
-                                    <button type="button" class="qty-btn"
-                                            th:onclick="'tangSoLuong(' + ${item.idChiTietGioHang} + ', this)'">
-                                        +
-                                    </button>
-                                </div>
+
+            <!-- LEFT -->
+
+            <div class="col-md-8">
+
+                <div th:each="item : ${gioHang.chiTietGioHangs}"
+                     class="card shadow-sm mb-3">
+
+                    <div class="card-body d-flex align-items-center">
+
+                        <!-- ẢNH -->
+
+                        <img th:src="@{${item.sanPham.hinhAnh}}"
+                             width="120"
+                             height="120"
+                             style="object-fit: cover"
+                             class="rounded me-3">
+
+                        <!-- INFO -->
+
+                        <div class="flex-grow-1">
+
+                            <h5 class="fw-bold"
+                                th:text="${item.sanPham.tenSanPham}">
+                            </h5>
+
+                            <div class="text-danger fw-bold mb-2"
+                                 th:text="${#numbers.formatDecimal(item.thanhTien,0,'COMMA',0,'POINT')} + ' đ'">
                             </div>
-                            
-                            <div>
-                                <a th:href="@{/GioHang/Xoa/{id}(id=${item.idChiTietGioHang})}"
-                                   class="btn btn-link text-danger p-2">
-                                    <i class="fa-solid fa-trash-can fa-lg"></i>
+
+                            <div class="d-flex align-items-center">
+
+                                <a th:href="@{/GioHang/Giam/{id}(id=${item.idChiTietGioHang})}"
+                                   class="btn btn-outline-secondary btn-sm">
+
+                                    -
+
                                 </a>
+
+                                <input type="text"
+                                       class="form-control text-center mx-2"
+                                       style="width:70px"
+                                       th:value="${item.soLuong}"
+                                       readonly>
+
+                                <a th:href="@{/GioHang/Tang/{id}(id=${item.idChiTietGioHang})}"
+                                   class="btn btn-outline-secondary btn-sm">
+
+                                    +
+
+                                </a>
+
                             </div>
+
                         </div>
+
+                        <!-- XÓA -->
+
+                        <a th:href="@{/GioHang/Xoa/{id}(id=${item.idChiTietGioHang})}"
+                           class="btn btn-danger">
+
+                            <i class="fa fa-trash"></i>
+
+                        </a>
+
                     </div>
+
                 </div>
-                
-                <div class="card shadow-sm mt-4">
+
+            </div>
+
+            <!-- RIGHT -->
+
+            <div class="col-md-4">
+
+                <div class="card shadow">
+
                     <div class="card-body">
-                        <h5 class="fw-bold">Ghi chú đơn hàng</h5>
-                        <textarea class="form-control mt-3" rows="4"
-                                  placeholder="Thêm ghi chú cho đơn hàng..."></textarea>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-4">
-                <div class="card shadow order-box">
-                    <div class="card-body p-4">
-                        <h4 class="fw-bold mb-4">Thông tin đơn hàng</h4>
-                        <div class="d-flex justify-content-between mb-3">
-                            <span>Tạm tính</span>
-                            <span class="fw-bold text-danger"
-                                  th:text="${#numbers.formatDecimal(tongTien,0,'COMMA',0,'POINT')} + ' đ'">0 đ</span>
+
+                        <h4 class="fw-bold mb-3">
+                            THÔNG TIN ĐƠN HÀNG
+                        </h4>
+
+                        <div class="d-flex justify-content-between">
+
+                            <span>Tổng tiền:</span>
+
+                            <span class="fw-bold text-danger">
+
+                                <span th:text="${#numbers.formatDecimal(
+                                    gioHang.chiTietGioHangs.![thanhTien].stream().reduce(0.0, (a,b)->a+b),
+                                    0,'COMMA',0,'POINT')}">
+                                </span> đ
+
+                            </span>
+
                         </div>
-                        <hr/>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fw-bold">Tổng tiền</span>
-                            <span class="total-price"
-                                  th:text="${#numbers.formatDecimal(tongTien,0,'COMMA',0,'POINT')} + ' đ'">0 đ</span>
-                        </div>
-                        <form th:action="@{/GioHang/ThanhToan}" method="get">
-                            <button type="submit" class="btn btn-danger w-100 mt-4 py-3 fw-bold rounded-3">
-                                THANH TOÁN
-                            </button>
-                        </form>
+
+                        <a href="#"
+                           class="btn btn-danger w-100 mt-4">
+
+                            THANH TOÁN
+
+                        </a>
+
                     </div>
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
+
 </div>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
-<div th:replace="~{user/GioHang/popup :: popupCart}"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<script th:inline="javascript">
-    function tangSoLuong(id, btn) {
-        const currentBtn =
-                btn ||
-                document.querySelector(`button[onclick*="tangSoLuong(${id},"]`);
-        let qtySpan = null;
-        if (currentBtn) {
-            const parent = currentBtn.parentElement;
-            qtySpan =
-                    parent.querySelector(".qty") || parent.querySelector("span");
-        }
-        
-        fetch("/GioHang/Tang/" + id)
-                .then((response) => {
-                    if (!response.ok) throw new Error("Lỗi kết nối Server");
-                    return response.json();
-                })
-                .then((data) => {
-                    if (qtySpan) {
-                        qtySpan.textContent = data.soLuongMoi;
-                    }
-                    capNhatGiaoDienTienVaSidebar(data.tongTienMoi);
-                })
-                .catch((err) => {
-                    console.error("Lỗi:", err);
-                    alert("Không thể tăng số lượng!");
-                });
-    }
-    
-    function giamSoLuong(id, btn) {
-        const currentBtn =
-                btn ||
-                document.querySelector(`button[onclick*="giamSoLuong(${id},"]`);
-        let qtySpan = null;
-        if (currentBtn) {
-            const parent = currentBtn.parentElement;
-            qtySpan =
-                    parent.querySelector(".qty") || parent.querySelector("span");
-        }
-        
-        if (qtySpan && parseInt(qtySpan.textContent) <= 1) {
-            alert(
-                    "Để xóa sản phẩm, vui lòng chọn biểu tượng thùng rác bên cạnh!",
-            );
-            return;
-        }
-        
-        fetch("/GioHang/Giam/" + id)
-                .then((response) => {
-                    if (!response.ok) throw new Error("Lỗi kết nối Server");
-                    return response.json();
-                })
-                .then((data) => {
-                    if (qtySpan) {
-                        qtySpan.textContent = data.soLuongMoi;
-                    }
-                    capNhatGiaoDienTienVaSidebar(data.tongTienMoi);
-                })
-                .catch((err) => {
-                    console.error("Lỗi:", err);
-                    alert("Không thể giảm số lượng!");
-                });
-    }
-    
-    function capNhatGiaoDienTienVaSidebar(tongTienMoi) {
-        const formattedPrice =
-                new Intl.NumberFormat("vi-VN").format(tongTienMoi) + " đ";
-        
-        const tamTinhSpan = document.querySelector(".order-box .text-danger");
-        const tongTienSpan = document.querySelector(".total-price");
-        
-        if (tamTinhSpan) tamTinhSpan.textContent = formattedPrice;
-        if (tongTienSpan) tongTienSpan.textContent = formattedPrice;
-        
-        document.querySelectorAll("div, p, span, text").forEach((el) => {
-            if (
-                    el.textContent.trim().startsWith("Tổng:") ||
-                    el.textContent.trim().startsWith("Tổng cộng:")
-            ) {
-                el.innerHTML = `Tổng cộng: <span class="text-danger">${formattedPrice}</span>`;
-            }
-        });
-        
-        const cartContentDiv = document.getElementById("cartContent");
-        if (cartContentDiv) {
-            fetch("/GioHang/Popup")
-                    .then((res) => res.text())
-                    .then((html) => {
-                        cartContentDiv.innerHTML = html;
-                    })
-                    .catch((err) =>
-                            console.log("Không tìm thấy component sidebar trên trang này"),
-                    );
-        }
-    }
-</script>
 </body>
 </html>

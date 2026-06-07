@@ -3,93 +3,105 @@
 /* TIÊU ĐỀ TRANG */
 
 .store-title {
-  font-family: "Montserrat", sans-serif;
 
-  font-size: 40px;
+    font-family: 'Montserrat', sans-serif;
 
-  font-weight: 800;
+    font-size: 40px;
 
-  letter-spacing: 0.5px;
+    font-weight: 800;
 
-  color: #000;
+    letter-spacing: 0.5px;
 
-  margin-bottom: 5px;
+    color: #000;
+
+    margin-bottom: 5px;
 }
 
 /* BREADCRUMB */
 
 .breadcrumb-text {
-  font-family: "Montserrat", sans-serif;
 
-  color: #666;
+    font-family: 'Montserrat', sans-serif;
 
-  font-size: 16px;
+    color: #666;
 
-  margin-bottom: 30px;
+    font-size: 16px;
+
+    margin-bottom: 30px;
 }
 
 /* KHUNG FORM */
 
 .store-box {
-  background: #fff;
 
-  padding: 20px;
+    background: #fff;
 
-  border-radius: 12px;
+    padding: 20px;
 
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 /* TITLE */
 
 .filter-title {
-  font-weight: 600;
 
-  font-size: 20px;
+    font-weight: 600;
+
+    font-size: 20px;
 }
 
 /* SELECT */
 
 .form-control {
-  height: 45px;
 
-  border-radius: 8px;
+    height: 45px;
 
-  margin-top: 5px;
+    border-radius: 8px;
+
+    margin-top: 5px;
 }
 
 /* LINK MAP */
 
 .map-link {
-  color: #1ca34a;
 
-  font-weight: 600;
+    color: #1ca34a;
 
-  text-decoration: none;
+    font-weight: 600;
+
+    text-decoration: none;
 }
 
 .map-link:hover {
-  text-decoration: underline;
+
+    text-decoration: underline;
 }
 
 /* KHOẢNG TRẮNG */
 
 .page-bottom-space {
-  height: 140px;
+
+    height: 140px;
 }
 
 /* RESPONSIVE */
 
-@media (max-width: 768px) {
-  .store-title {
-    font-size: 28px;
-  }
+@media(max-width:768px){
 
-  .breadcrumb-text {
-    font-size: 14px;
-  }
+    .store-title{
 
-  iframe {
-    margin-top: 20px;
-  }
+        font-size: 28px;
+    }
+
+    .breadcrumb-text{
+
+        font-size: 14px;
+    }
+
+    iframe{
+
+        margin-top: 20px;
+    }
 }

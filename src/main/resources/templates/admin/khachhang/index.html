@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/fragments/admin-layout :: layout('Quản lý Khách hàng', ~{::#main-content})}">
+<body>
+    <div id="main-content">
+
+        <!-- Stats row -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(0,158,247,0.1); color: #009ef7;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${tongKhachHang}">0</div>
+                        <div class="stat-label">Tổng khách hàng</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="card-header">
+                <h4 class="card-title"><i class="fas fa-users me-2 text-primary"></i>Danh sách Khách hàng</h4>
+            </div>
+            <div class="card-body">
+
+                <!-- Search form -->
+                <form th:action="@{/admin/khachhang}" method="get" class="d-flex gap-2 mb-4">
+                    <input type="text" name="keyword" class="form-control" placeholder="Tìm theo tên khách hàng..."
+                           th:value="${keyword}" style="max-width: 350px;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Tìm kiếm
+                    </button>
+                    <a th:href="@{/admin/khachhang}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i>Xóa lọc
+                    </a>
+                </form>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table table-admin align-middle">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Họ tên</th>
+                                <th>Email</th>
+                                <th>Số điện thoại</th>
+                                <th>Ngày tạo</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="kh, stat : ${listKhachHang}" th:id="'row-kh-' + ${kh.idNguoiDung}">
+                                <td th:text="${stat.index + 1}"></td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar-circle">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <span class="fw-600" th:text="${kh.hoTen}"></span>
+                                    </div>
+                                </td>
+                                <td th:text="${kh.email}"></td>
+                                <td th:text="${kh.soDienThoai != null ? kh.soDienThoai : '—'}"></td>
+                                <td th:text="${kh.ngayTao != null ? #temporals.format(kh.ngayTao, 'dd/MM/yyyy') : '—'}"></td>
+                                <td>
+                                    <span th:id="'badge-kh-' + ${kh.idNguoiDung}"
+                                          th:class="${kh.trangThai} ? 'badge bg-success' : 'badge bg-danger'"
+                                          th:text="${kh.trangThai} ? 'Hoạt động' : 'Đã khóa'"></span>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <a th:href="@{/admin/khachhang/chitiet/{id}(id=${kh.idNguoiDung})}"
+                                           class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-outline-warning"
+                                                th:onclick="'toggleStatus(' + ${kh.idNguoiDung} + ')'"
+                                                title="Khóa/Mở khóa">
+                                            <i class="fas fa-lock"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(listKhachHang)}">
+                                <td colspan="7" class="text-center text-muted py-5">
+                                    <i class="fas fa-users fa-3x mb-3 d-block text-light"></i>
+                                    Không tìm thấy khách hàng nào.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function toggleStatus(id) {
+                if (!confirm('Bạn có chắc muốn thay đổi trạng thái tài khoản này?')) return;
+                fetch('/admin/khachhang/toggle-status/' + id, { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    const badge = document.getElementById('badge-kh-' + id);
+                    if (data.trangThai) {
+                        badge.className = 'badge bg-success';
+                        badge.textContent = 'Hoạt động';
+                    } else {
+                        badge.className = 'badge bg-danger';
+                        badge.textContent = 'Đã khóa';
+                    }
+                })
+                .catch(() => alert('Có lỗi xảy ra!'));
+            }
+        </script>
+    </div>
+</body>
+</html>

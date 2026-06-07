@@ -1,179 +1,141 @@
-<!doctype html>
-<html
-  lang="vi"
-  xmlns:th="http://www.thymeleaf.org"
-  th:replace="~{admin/fragments/admin-layout :: layout('Tổng Quan Dashboard', ~{::#main-content})}"
->
-  <body>
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/fragments/admin-layout :: layout('Tổng Quan Dashboard', ~{::#main-content})}">
+<body>
     <div id="main-content">
-      <!-- 4 Cards Thống kê -->
-      <div class="row mb-4">
-        <!-- Doanh thu -->
-        <div class="col-md-3">
-          <div class="admin-card text-white bg-primary mb-3">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="text-white-50 text-uppercase fw-bold">
-                    Doanh thu hôm nay
-                  </h6>
-                  <h3
-                    class="mb-0"
-                    th:text="${#numbers.formatDecimal(doanhThuHomNay, 0, 'COMMA', 0, 'POINT')} + ' đ'"
-                  >
-                    1.250.000 đ
-                  </h3>
+        <!-- 4 Cards Thống kê -->
+        <div class="row mb-4">
+            <!-- Doanh thu -->
+            <div class="col-md-3">
+                <div class="admin-card text-white bg-primary mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-white-50 text-uppercase fw-bold">Doanh thu hôm nay</h6>
+                                <h3 class="mb-0" th:text="${#numbers.formatDecimal(doanhThuHomNay, 0, 'COMMA', 0, 'POINT')} + ' đ'">1.250.000 đ</h3>
+                            </div>
+                            <div class="h1 mb-0 text-white-50">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="h1 mb-0 text-white-50">
-                  <i class="fas fa-wallet"></i>
-                </div>
-              </div>
             </div>
-          </div>
+            
+            <!-- Đơn hàng -->
+            <div class="col-md-3">
+                <div class="admin-card text-white bg-success mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-white-50 text-uppercase fw-bold">Đơn hàng mới</h6>
+                                <h3 class="mb-0" th:text="${donHangMoi}">12</h3>
+                            </div>
+                            <div class="h1 mb-0 text-white-50">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tồn kho -->
+            <div class="col-md-3">
+                <div class="admin-card text-white bg-warning mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-white-50 text-uppercase fw-bold">SP sắp hết hàng</h6>
+                                <h3 class="mb-0" th:text="${spSapHetHang}">5</h3>
+                            </div>
+                            <div class="h1 mb-0 text-white-50">
+                                <i class="fas fa-boxes"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Đánh giá -->
+            <div class="col-md-3">
+                <div class="admin-card text-white bg-danger mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-white-50 text-uppercase fw-bold">Đánh giá chờ duyệt</h6>
+                                <h3 class="mb-0" th:text="${danhGiaChoDuyet}">8</h3>
+                            </div>
+                            <div class="h1 mb-0 text-white-50">
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Đơn hàng -->
-        <div class="col-md-3">
-          <div class="admin-card text-white bg-success mb-3">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="text-white-50 text-uppercase fw-bold">
-                    Đơn hàng mới
-                  </h6>
-                  <h3 class="mb-0" th:text="${donHangMoi}">12</h3>
+        <div class="row">
+            <!-- Biểu đồ -->
+            <div class="col-md-8">
+                <div class="admin-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Biểu đồ doanh thu 7 ngày qua</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="revenueChart" height="100"></canvas>
+                    </div>
                 </div>
-                <div class="h1 mb-0 text-white-50">
-                  <i class="fas fa-shopping-cart"></i>
-                </div>
-              </div>
             </div>
-          </div>
+
+            <!-- Top Sản phẩm -->
+            <div class="col-md-4">
+                <div class="admin-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Top 5 Bán Chạy</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0 table-admin">
+                            <tbody>
+                                <tr th:each="sp : ${top5BanChay}">
+                                    <td><img th:src="${sp.HinhAnh}" class="rounded" alt="Hình" style="width: 40px; height: 40px; object-fit: cover;"></td>
+                                    <td th:text="${sp.TenSanPham}">Tên Sản Phẩm</td>
+                                    <td class="text-end fw-bold" th:text="${sp.DaBan} + ' ly'">120 ly</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Tồn kho -->
-        <div class="col-md-3">
-          <div class="admin-card text-white bg-warning mb-3">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="text-white-50 text-uppercase fw-bold">
-                    SP sắp hết hàng
-                  </h6>
-                  <h3 class="mb-0" th:text="${spSapHetHang}">5</h3>
-                </div>
-                <div class="h1 mb-0 text-white-50">
-                  <i class="fas fa-boxes"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <!-- Script vẽ biểu đồ (Dữ liệu động) -->
+        <script th:inline="javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                var chartLabels = /*[[${chartLabels}]]*/ ['17/05', '18/05', '19/05', '20/05', '21/05', '22/05', '23/05'];
+                var chartData = /*[[${chartData}]]*/ [850000, 1020000, 950000, 1100000, 1400000, 1350000, 1250000];
 
-        <!-- Đánh giá -->
-        <div class="col-md-3">
-          <div class="admin-card text-white bg-danger mb-3">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="text-white-50 text-uppercase fw-bold">
-                    Đánh giá chờ duyệt
-                  </h6>
-                  <h3 class="mb-0" th:text="${danhGiaChoDuyet}">8</h3>
-                </div>
-                <div class="h1 mb-0 text-white-50">
-                  <i class="fas fa-star"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <!-- Biểu đồ -->
-        <div class="col-md-8">
-          <div class="admin-card">
-            <div class="card-header">
-              <h5 class="card-title mb-0">Biểu đồ doanh thu 7 ngày qua</h5>
-            </div>
-            <div class="card-body">
-              <canvas id="revenueChart" height="100"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- Top Sản phẩm -->
-        <div class="col-md-4">
-          <div class="admin-card">
-            <div class="card-header">
-              <h5 class="card-title mb-0">Top 5 Bán Chạy</h5>
-            </div>
-            <div class="card-body p-0">
-              <table class="table table-hover mb-0 table-admin">
-                <tbody>
-                  <tr th:each="sp : ${top5BanChay}">
-                    <td>
-                      <img
-                        th:src="${sp.HinhAnh}"
-                        class="rounded"
-                        alt="Hình"
-                        style="width: 40px; height: 40px; object-fit: cover"
-                      />
-                    </td>
-                    <td th:text="${sp.TenSanPham}">Tên Sản Phẩm</td>
-                    <td class="text-end fw-bold" th:text="${sp.DaBan} + ' ly'">
-                      120 ly
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Script vẽ biểu đồ (Dữ liệu động) -->
-      <script th:inline="javascript">
-        document.addEventListener("DOMContentLoaded", function () {
-          var chartLabels = /*[[${chartLabels}]]*/ [
-            "17/05",
-            "18/05",
-            "19/05",
-            "20/05",
-            "21/05",
-            "22/05",
-            "23/05",
-          ];
-          var chartData = /*[[${chartData}]]*/ [
-            850000, 1020000, 950000, 1100000, 1400000, 1350000, 1250000,
-          ];
-
-          var ctx = document.getElementById("revenueChart").getContext("2d");
-          var chart = new Chart(ctx, {
-            type: "line",
-            data: {
-              labels: chartLabels,
-              datasets: [
-                {
-                  label: "Doanh thu (VNĐ)",
-                  data: chartData,
-                  backgroundColor: "rgba(0, 158, 247, 0.1)",
-                  borderColor: "#009ef7",
-                  borderWidth: 2,
-                  tension: 0.4,
-                  fill: true,
-                },
-              ],
-            },
-            options: {
-              responsive: true,
-              plugins: { legend: { display: false } },
-              scales: { y: { beginAtZero: true } },
-            },
-          });
-        });
-      </script>
+                var ctx = document.getElementById('revenueChart').getContext('2d');
+                var chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [{
+                            label: 'Doanh thu (VNĐ)',
+                            data: chartData,
+                            backgroundColor: 'rgba(0, 158, 247, 0.1)',
+                            borderColor: '#009ef7',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true } }
+                    }
+                });
+            });
+        </script>
     </div>
-  </body>
+</body>
 </html>

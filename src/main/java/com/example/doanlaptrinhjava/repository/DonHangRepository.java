@@ -22,4 +22,39 @@ public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
                    "GROUP BY DATE(NgayDat) " +
                    "ORDER BY ngay ASC", nativeQuery = true)
     List<Object[]> getDoanhThu7NgayQua();
+
+    // === Admin: Quản lý Đơn hàng ===
+    List<DonHang> findAllByOrderByNgayDatDesc();
+
+    List<DonHang> findByTrangThaiOrderByNgayDatDesc(String trangThai);
+
+    List<DonHang> findByNguoiDung_IdNguoiDungOrderByNgayDatDesc(Integer idNguoiDung);
+
+    // === Admin: Báo cáo Doanh thu ===
+    @Query(value = "SELECT MONTH(NgayDat) as thang, COALESCE(SUM(TongTien), 0) as doanhThu " +
+                   "FROM DonHang " +
+                   "WHERE TrangThai = 'HOAN_THANH' AND YEAR(NgayDat) = :nam " +
+                   "GROUP BY MONTH(NgayDat) " +
+                   "ORDER BY thang ASC", nativeQuery = true)
+    List<Object[]> getDoanhThuTheoThang(int nam);
+
+    @Query(value = "SELECT YEAR(NgayDat) as nam, COALESCE(SUM(TongTien), 0) as doanhThu " +
+                   "FROM DonHang " +
+                   "WHERE TrangThai = 'HOAN_THANH' " +
+                   "GROUP BY YEAR(NgayDat) " +
+                   "ORDER BY nam ASC", nativeQuery = true)
+    List<Object[]> getDoanhThuTheoNam();
+
+    @Query(value = "SELECT DATE(NgayDat) as ngay, COALESCE(SUM(TongTien), 0) as doanhThu " +
+                   "FROM DonHang " +
+                   "WHERE TrangThai = 'HOAN_THANH' AND NgayDat BETWEEN :tuNgay AND :denNgay " +
+                   "GROUP BY DATE(NgayDat) " +
+                   "ORDER BY ngay ASC", nativeQuery = true)
+    List<Object[]> getDoanhThuTheoKhoangNgay(String tuNgay, String denNgay);
+
+    @Query(value = "SELECT COALESCE(SUM(TongTien), 0) FROM DonHang WHERE TrangThai = 'HOAN_THANH'", nativeQuery = true)
+    Double getTongDoanhThu();
+
+    @Query(value = "SELECT COUNT(*) FROM DonHang WHERE TrangThai = 'HOAN_THANH'", nativeQuery = true)
+    Long getTongDonHoanThanh();
 }

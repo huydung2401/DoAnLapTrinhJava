@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/fragments/admin-layout :: layout('Chi tiết Khách hàng', ~{::#main-content})}">
+<body>
+    <div id="main-content">
+        <div class="mb-3">
+            <a href="/admin/khachhang" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Quay lại danh sách
+            </a>
+        </div>
+
+        <div class="row g-4">
+            <!-- Thông tin khách hàng -->
+            <div class="col-md-4">
+                <div class="admin-card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="fas fa-user me-2 text-primary"></i>Thông tin cá nhân</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <div class="avatar-circle-lg mx-auto mb-3">
+                                <i class="fas fa-user fa-2x"></i>
+                            </div>
+                            <h5 class="fw-bold" th:text="${khachHang.hoTen}"></h5>
+                            <span th:class="${khachHang.trangThai} ? 'badge bg-success' : 'badge bg-danger'"
+                                  th:text="${khachHang.trangThai} ? 'Đang hoạt động' : 'Đã khóa'"></span>
+                        </div>
+
+                        <div class="info-list">
+                            <div class="info-item">
+                                <span class="info-label"><i class="fas fa-envelope me-2"></i>Email</span>
+                                <span class="info-value" th:text="${khachHang.email}"></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label"><i class="fas fa-phone me-2"></i>Điện thoại</span>
+                                <span class="info-value" th:text="${khachHang.soDienThoai != null ? khachHang.soDienThoai : '—'}"></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label"><i class="fas fa-map-marker-alt me-2"></i>Địa chỉ</span>
+                                <span class="info-value" th:text="${khachHang.diaChi != null ? khachHang.diaChi : '—'}"></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label"><i class="fas fa-calendar me-2"></i>Ngày tạo</span>
+                                <span class="info-value" th:text="${khachHang.ngayTao != null ? #temporals.format(khachHang.ngayTao, 'dd/MM/yyyy HH:mm') : '—'}"></span>
+                            </div>
+                        </div>
+
+                        <!-- Form chỉnh sửa -->
+                        <hr>
+                        <h6 class="fw-bold mb-3">Chỉnh sửa thông tin</h6>
+                        <div class="mb-2">
+                            <label class="form-label small">Họ tên</label>
+                            <input type="text" id="inp-hoTen" class="form-control form-control-sm" th:value="${khachHang.hoTen}">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">Số điện thoại</label>
+                            <input type="text" id="inp-sdt" class="form-control form-control-sm" th:value="${khachHang.soDienThoai}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Địa chỉ</label>
+                            <textarea id="inp-diachi" class="form-control form-control-sm" rows="2" th:text="${khachHang.diaChi}"></textarea>
+                        </div>
+                        <button class="btn btn-primary btn-sm w-100" th:onclick="'saveKhachHang(' + ${khachHang.idNguoiDung} + ')'">
+                            <i class="fas fa-save me-1"></i>Lưu thay đổi
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lịch sử đơn hàng -->
+            <div class="col-md-8">
+                <div class="admin-card">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="fas fa-shopping-bag me-2 text-primary"></i>Lịch sử đặt hàng</h5>
+                        <span class="badge bg-primary" th:text="${#lists.size(lichSuDonHang)} + ' đơn'"></span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-admin mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Mã đơn</th>
+                                        <th>Ngày đặt</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Phương thức</th>
+                                        <th>Trạng thái</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="dh : ${lichSuDonHang}">
+                                        <td><strong th:text="'#' + ${dh.idDonHang}"></strong></td>
+                                        <td th:text="${dh.ngayDat != null ? #temporals.format(dh.ngayDat, 'dd/MM/yyyy HH:mm') : '—'}"></td>
+                                        <td>
+                                            <span class="text-success fw-bold"
+                                                  th:text="${#numbers.formatDecimal(dh.tongTien, 0, 'COMMA', 0, 'POINT') + ' đ'}"></span>
+                                        </td>
+                                        <td>
+                                            <span th:class="${dh.phuongThucThanhToan == 'BANKING'} ? 'badge bg-info' : 'badge bg-secondary'"
+                                                  th:text="${dh.phuongThucThanhToan}"></span>
+                                        </td>
+                                        <td th:insert="~{admin/donhang/chitiet :: trangThaiDonHangBadge(${dh.trangThai})}"></td>
+                                        <td>
+                                            <a th:href="@{/admin/donhang/chitiet/{id}(id=${dh.idDonHang})}"
+                                               class="btn btn-xs btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(lichSuDonHang)}">
+                                        <td colspan="6" class="text-center text-muted py-4">
+                                            Khách hàng chưa có đơn hàng nào.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script th:inline="javascript">
+            function saveKhachHang(id) {
+                const hoTen = document.getElementById('inp-hoTen').value.trim();
+                const soDienThoai = document.getElementById('inp-sdt').value.trim();
+                const diaChi = document.getElementById('inp-diachi').value.trim();
+                if (!hoTen) { alert('Họ tên không được để trống!'); return; }
+
+                fetch('/admin/khachhang/update/' + id, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hoTen, soDienThoai, diaChi })
+                })
+                .then(r => {
+                    if (r.ok) alert('Đã cập nhật thông tin khách hàng!');
+                    else alert('Có lỗi xảy ra!');
+                })
+                .catch(() => alert('Có lỗi xảy ra!'));
+            }
+        </script>
+    </div>
+</body>
+</html>

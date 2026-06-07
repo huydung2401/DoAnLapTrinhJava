@@ -1,23 +1,29 @@
 <div th:fragment="detailContent" class="table-responsive">
-    <table class="table table-bordered">
-        <thead class="table-light">
-            <tr>
-                <th>Sản Phẩm</th>
-                <th class="text-center">Số Lượng</th>
-                <th class="text-end">Giá Nhập</th>
-                <th class="text-end">Thành Tiền</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="ct : ${chiTietList}">
-                <td th:text="${ct.sanPham.tenSanPham}"></td>
-                <td class="text-center" th:text="${ct.soLuongNhap}"></td>
-                <td class="text-end" th:text="${#numbers.formatDecimal(ct.giaNhap, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
-                <td class="text-end fw-bold text-danger" th:text="${#numbers.formatDecimal(ct.soLuongNhap * ct.giaNhap, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(chiTietList)}">
-                <td colspan="4" class="text-center text-muted">Không có chi tiết.</td>
-            </tr>
-        </tbody>
-    </table>
+  <table class="table table-bordered">
+    <thead class="table-light">
+      <tr>
+        <th>Sản Phẩm</th>
+        <th class="text-center">Số Lượng</th>
+        <th class="text-end">Giá Nhập</th>
+        <th class="text-end">Thành Tiền</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="ct : ${chiTietList}">
+        <td th:text="${ct.sanPham.tenSanPham}"></td>
+        <td class="text-center" th:text="${ct.soLuongNhap}"></td>
+        <td
+          class="text-end"
+          th:text="${#numbers.formatDecimal(ct.giaNhap, 0, 'COMMA', 0, 'POINT')} + ' đ'"
+        ></td>
+        <td
+          class="text-end fw-bold text-danger"
+          th:text="${#numbers.formatDecimal(ct.soLuongNhap * ct.giaNhap, 0, 'COMMA', 0, 'POINT')} + ' đ'"
+        ></td>
+      </tr>
+      <tr th:if="${#lists.isEmpty(chiTietList)}">
+        <td colspan="4" class="text-center text-muted">Không có chi tiết.</td>
+      </tr>
+    </tbody>
+  </table>
 </div>

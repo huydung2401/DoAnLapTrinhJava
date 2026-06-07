@@ -1,259 +1,256 @@
-.footer{
+.footer {
+  background: #111;
 
-    background: #111;
+  color: #fff;
 
-    color: #fff;
+  padding: 15px 30px 5px;
 
-    padding: 15px 30px 5px;
-
-    font-size: 14px;
+  font-size: 14px;
 }
 
 /* =========================
    CONTAINER
 ========================= */
 
-.footer-container{
-    width: 100%;
+.footer-container {
+  width: 100%;
 
-    max-width: 1200px;
+  max-width: 1200px;
 
-    margin: auto;
+  margin: auto;
 
-    display: flex;
+  display: flex;
 
-    justify-content: space-between;
+  justify-content: space-between;
 
-    align-items: flex-start;
+  align-items: flex-start;
 
-    gap: 20px;
+  gap: 20px;
 
-    flex-wrap: wrap;
+  flex-wrap: wrap;
 }
 
 /* =========================
    COLUMN
 ========================= */
 
-.footer-col{
-    flex: 1 1 220px;
+.footer-col {
+  flex: 1 1 220px;
 
-    text-align: left;
+  text-align: left;
 }
 
 /* =========================
    TITLE
 ========================= */
-.footer-title{
-    font-size: 16px;
+.footer-title {
+  font-size: 16px;
 
-    font-weight: 700;
+  font-weight: 700;
 
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 
-    color: #00b36b;
+  color: #00b36b;
 
-    text-transform: uppercase;
+  text-transform: uppercase;
 
-    letter-spacing: 1px;
+  letter-spacing: 1px;
 
-    text-align: left;
+  text-align: left;
 
-    white-space: nowrap;
+  white-space: nowrap;
 }
 
 /* =========================
    TEXT
 ========================= */
 
-.footer-desc{
-    color: #ccc;
+.footer-desc {
+  color: #ccc;
 
-    line-height: 1.8;
+  line-height: 1.8;
 
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 
-    font-size: 18px;
+  font-size: 18px;
 
-    text-align: left;
+  text-align: left;
 }
 
-.footer-col p{
-    margin-bottom: 12px;
+.footer-col p {
+  margin-bottom: 12px;
 
-    color: #ccc;
+  color: #ccc;
 
-    font-size: 15px;
+  font-size: 15px;
 
-    text-align: left;
+  text-align: left;
 }
 
 /* =========================
    LIST
 ========================= */
 
-.footer-col ul{
-    list-style: none;
+.footer-col ul {
+  list-style: none;
 
-    padding: 0;
+  padding: 0;
 
-    margin: 0;
+  margin: 0;
 
-    text-align: left;
+  text-align: left;
 }
 
-.footer-col ul li{
-    margin-bottom: 14px;
+.footer-col ul li {
+  margin-bottom: 14px;
 
-    text-align: left;
+  text-align: left;
 }
 
-.footer-col ul li a{
-    font-size: 15px;
+.footer-col ul li a {
+  font-size: 15px;
 }
 
 /* =========================
    LINK
 ========================= */
 
-.footer a{
-    color: #ccc;
+.footer a {
+  color: #ccc;
 
-    text-decoration: none;
+  text-decoration: none;
 
-    transition: 0.3s;
+  transition: 0.3s;
 }
 
-.footer a:hover{
-    color: #00b36b;
+.footer a:hover {
+  color: #00b36b;
 }
 
 /* =========================
    FORM
 ========================= */
 
-.footer-form{
-    display: flex;
+.footer-form {
+  display: flex;
 
-    justify-content: flex-start;
+  justify-content: flex-start;
 
-    margin-top: 15px;
+  margin-top: 15px;
 
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
-.footer-form input{
-    flex: 1;
+.footer-form input {
+  flex: 1;
 
-    height: 42px;
+  height: 42px;
 
-    border: none;
+  border: none;
 
-    outline: none;
+  outline: none;
 
-    padding: 0 15px;
+  padding: 0 15px;
 
-    border-radius: 8px 0 0 8px;
+  border-radius: 8px 0 0 8px;
 
-    font-size: 14px;
+  font-size: 14px;
 }
 
-.footer-form button{
-    border: none;
+.footer-form button {
+  border: none;
 
-    background: #00b36b;
+  background: #00b36b;
 
-    color: white;
+  color: white;
 
-    padding: 0 18px;
+  padding: 0 18px;
 
-    font-weight: 600;
+  font-weight: 600;
 
-    border-radius: 0 8px 8px 0;
+  border-radius: 0 8px 8px 0;
 
-    cursor: pointer;
+  cursor: pointer;
 
-    transition: 0.3s;
+  transition: 0.3s;
 
-    font-size: 14px;
+  font-size: 14px;
 }
 
-.footer-form button:hover{
-    background: #008f56;
+.footer-form button:hover {
+  background: #008f56;
 }
 
 /* =========================
    SOCIAL
 ========================= */
 
-.footer-social{
-    display: flex;
+.footer-social {
+  display: flex;
 
-    justify-content: flex-start;
+  justify-content: flex-start;
 
-    gap: 12px;
+  gap: 12px;
 }
 
-.footer-social a{
-    width: 38px;
+.footer-social a {
+  width: 38px;
 
-    height: 38px;
+  height: 38px;
 
-    border-radius: 50%;
+  border-radius: 50%;
 
-    background: #222;
+  background: #222;
 
-    display: flex;
+  display: flex;
 
-    align-items: center;
+  align-items: center;
 
-    justify-content: center;
+  justify-content: center;
 
-    font-size: 16px;
+  font-size: 16px;
 
-    transition: 0.3s;
+  transition: 0.3s;
 }
 
-.footer-social a:hover{
-    background: #00b36b;
+.footer-social a:hover {
+  background: #00b36b;
 
-    color: white;
+  color: white;
 }
 
 /* =========================
    COPYRIGHT
 ========================= */
 
-.footer-bottom{
-    border-top: 1px solid #333;
+.footer-bottom {
+  border-top: 1px solid #333;
 
-    margin-top: 40px;
+  margin-top: 40px;
 
-    padding-top: 18px;
+  padding-top: 18px;
 
-    text-align: center;
+  text-align: center;
 
-    color: #aaa;
+  color: #aaa;
 
-    font-size: 13px;
+  font-size: 13px;
 }
 
 /* =========================
    RESPONSIVE
 ========================= */
 
-@media(max-width: 768px){
+@media (max-width: 768px) {
+  .footer {
+    padding: 40px 20px 20px;
+  }
 
-    .footer{
-        padding: 40px 20px 20px;
-    }
+  .footer-container {
+    flex-direction: column;
+  }
 
-    .footer-container{
-        flex-direction: column;
-    }
-
-    .footer-title{
-        font-size: 24px;
-    }
-
+  .footer-title {
+    font-size: 24px;
+  }
 }

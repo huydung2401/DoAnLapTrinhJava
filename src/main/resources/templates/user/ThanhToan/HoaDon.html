@@ -1,0 +1,244 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hóa đơn mua hàng</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <link rel="stylesheet" th:href="@{/css/home.css}" />
+    <link rel="stylesheet" th:href="@{/css/logIn.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    <link rel="stylesheet" th:href="@{/css/popup-cart.css}" />
+
+    <style>
+      body {
+        background: #f3f3f3;
+        font-family: "Segoe UI", sans-serif;
+      }
+
+      .invoice-top-header {
+        background: #fff;
+        padding: 20px;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .header-container {
+        width: 1200px;
+        margin: auto;
+      }
+
+      .logo-img {
+        height: 60px;
+      }
+
+      .logo-text {
+        color: #006241;
+        font-weight: 700;
+      }
+
+      .invoice-card {
+        max-width: 900px;
+        margin: 40px auto;
+        background: #fff;
+        padding: 50px;
+        border-radius: 10px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+        position: relative;
+      }
+
+      .invoice-title {
+        text-align: center;
+        color: #003c58;
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 40px;
+      }
+
+      .info-line {
+        margin-bottom: 12px;
+        font-size: 16px;
+      }
+
+      .info-label {
+        width: 180px;
+        display: inline-block;
+        font-weight: 700;
+      }
+
+      .invoice-table {
+        margin-top: 30px;
+      }
+
+      .invoice-table thead {
+        background: #003c58;
+        color: white;
+      }
+
+      .total-price-section {
+        border-top: 2px solid #003c58;
+        margin-top: 25px;
+        padding-top: 20px;
+        text-align: right;
+      }
+
+      .total-label {
+        font-size: 22px;
+        font-weight: 600;
+      }
+
+      .total-value {
+        font-size: 30px;
+        color: #e8591c;
+        font-weight: 700;
+      }
+
+      .print-btn {
+        position: absolute;
+        right: 30px;
+        top: 30px;
+        border: none;
+        background: none;
+        font-size: 28px;
+        color: #888;
+      }
+
+      .btn-home {
+        margin-top: 30px;
+        background: #0d6efd;
+        color: white;
+        padding: 12px 25px;
+        border-radius: 6px;
+        display: inline-block;
+      }
+
+      .footer-note {
+        text-align: center;
+        color: #888;
+        margin-top: 40px;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <div class="invoice-card" th:object="${donHang}">
+      <button class="print-btn" onclick="window.print()">
+        <i class="fas fa-print"></i>
+      </button>
+
+      <div class="invoice-header-content">
+        <div class="invoice-title">HÓA ĐƠN MUA HÀNG</div>
+      </div>
+
+      <div class="info-section">
+        <div class="info-line">
+          <span class="info-label">Cửa hàng:</span>
+          <strong>STARBUCKS COFFEE</strong>
+        </div>
+
+        <div class="info-line">
+          <span class="info-label">Địa chỉ:</span>
+          140 Lê Trọng Tấn, Quận Tân Phú, TP.HCM
+        </div>
+
+        <div class="info-line">
+          <span class="info-label">Hotline:</span>
+          0967 390 575
+        </div>
+
+        <div class="info-line">
+          <span class="info-label">Email:</span>
+          support@starbuch.com
+        </div>
+
+        <hr style="margin: 20px 0" />
+
+        <div class="info-line">
+          <span class="info-label">Khách hàng:</span>
+          <strong
+            th:text="${donHang.nguoiDung != null ? donHang.nguoiDung.hoTen : donHang.hoTenNguoiNhan}"
+          >
+          </strong>
+        </div>
+
+        <div class="info-line">
+          <span class="info-label">SĐT:</span>
+          <span th:text="${donHang.soDienThoai}"></span>
+        </div>
+
+        <div class="info-line">
+          <span class="info-label">Địa chỉ nhận:</span>
+          <span th:text="${donHang.diaChiGiaoHang}"></span>
+        </div>
+
+        <div class="info-line">
+          <span class="info-label">Mã hóa đơn:</span>
+          <strong th:text="'#HD' + ${donHang.idDonHang}"></strong>
+        </div>
+
+        <div class="info-line">
+          <span class="info-label">Ngày lập:</span>
+          <span
+            th:text="${#temporals.format(donHang.ngayDat,'dd/MM/yyyy HH:mm:ss')}"
+          ></span>
+        </div>
+      </div>
+
+      <table class="table table-bordered invoice-table">
+        <thead>
+          <tr>
+            <th>Mã đơn</th>
+            <th>Người nhận</th>
+            <th>SĐT</th>
+            <th>Thanh toán</th>
+            <th>Tổng tiền</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td th:text="${donHang.idDonHang}"></td>
+
+            <td th:text="${donHang.hoTenNguoiNhan}"></td>
+
+            <td th:text="${donHang.soDienThoai}"></td>
+
+            <td th:text="${donHang.phuongThucThanhToan}"></td>
+
+            <td
+              th:text="${#numbers.formatDecimal(donHang.tongTien,0,'POINT',0,'POINT')} + ' ₫'"
+            ></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="total-price-section">
+        <span class="total-label">TỔNG CỘNG:</span>
+        <span
+          class="total-value"
+          th:text="${#numbers.formatDecimal(donHang.tongTien, 0, 'POINT', 0, 'POINT')} + '₫'"
+        >
+        </span>
+      </div>
+
+      <div class="footer-note">
+        Cảm ơn quý khách đã mua hàng tại Starbucks.<br />
+        Hẹn gặp lại quý khách!
+      </div>
+
+      <div class="text-center">
+        <a th:href="@{/}" class="btn-home">
+          <i class="fas fa-arrow-left"></i>
+          Quay lại trang chủ
+        </a>
+      </div>
+    </div>
+  </body>
+</html>

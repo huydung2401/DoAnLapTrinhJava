@@ -1,172 +1,269 @@
-<!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/fragments/admin-layout :: layout('Quản lý Đánh Giá', ~{::#main-content})}">
-<body>
+<!doctype html>
+<html
+  lang="vi"
+  xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{admin/fragments/admin-layout :: layout('Quản lý Đánh Giá', ~{::#main-content})}"
+>
+  <body>
     <div id="main-content">
-        <div class="admin-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="card-title">Danh sách Đánh Giá Khách Hàng</h4>
-            </div>
-            <div class="card-body">
-                <!-- Filters -->
-                <form th:action="@{/admin/danhgia}" method="get" class="row mb-4">
-                    <div class="col-md-3">
-                        <select name="status" class="form-select" onchange="this.form.submit()">
-                            <option value="">-- Tất cả trạng thái --</option>
-                            <option value="0" th:selected="${status == 0}">Chờ duyệt</option>
-                            <option value="1" th:selected="${status == 1}">Đã duyệt</option>
-                        </select>
-                    </div>
-                </form>
-
-                <!-- Đánh giá List -->
-                <div class="list-group mb-4">
-                    <div th:each="dg : ${listDanhGia}" th:id="'review-item-' + ${dg.idDanhGia}" class="list-group-item list-group-item-action p-4 mb-3 border rounded shadow-sm">
-                        <div class="d-flex justify-content-between mb-2">
-                            <div>
-                                <h6 class="mb-1 fw-bold">
-                                    <i class="fas fa-user-circle text-secondary"></i> 
-                                    <span th:text="${dg.nguoiDung != null ? dg.nguoiDung.hoTen : 'Khách hàng ẩn danh'}"></span>
-                                </h6>
-                                <small class="text-muted" th:text="${#temporals.format(dg.ngayDanhGia, 'dd/MM/yyyy HH:mm')}"></small>
-                            </div>
-                            <div class="text-warning">
-                                <i th:each="i : ${#numbers.sequence(1, 5)}" 
-                                   th:class="${i <= dg.soSao} ? 'fas fa-star' : 'far fa-star'"></i>
-                            </div>
-                        </div>
-                        <p class="mb-2 fw-bold text-primary" th:text="'Sản phẩm: ' + ${dg.sanPham != null ? dg.sanPham.tenSanPham : ''}"></p>
-                        <p class="mb-3 fst-italic" th:text="'&quot;' + ${dg.noiDung} + '&quot;'"></p>
-                        
-                        <!-- Hiển thị Ảnh đính kèm (nếu có) -->
-                        <div th:if="${dg.hinhAnh != null and !dg.hinhAnh.isEmpty()}" class="mb-3">
-                            <img th:src="@{${dg.hinhAnh}}" class="img-thumbnail" style="max-height: 100px; cursor: pointer;" alt="Ảnh đánh giá">
-                        </div>
-
-                        <!-- Admin Reply (nếu có) -->
-                        <div th:id="'admin-reply-box-' + ${dg.idDanhGia}" 
-                             th:style="${dg.phanHoiAdmin != null and !dg.phanHoiAdmin.isEmpty()} ? 'display: block;' : 'display: none;'" 
-                             class="bg-light p-3 rounded mb-3 border-start border-4 border-primary">
-                            <small class="text-muted fw-bold d-block mb-1">Phản hồi từ Admin:</small>
-                            <p class="mb-0" th:id="'admin-reply-text-' + ${dg.idDanhGia}" th:text="${dg.phanHoiAdmin}"></p>
-                        </div>
-
-                        <!-- Các nút thao tác -->
-                        <div class="d-flex align-items-center gap-2">
-                            <!-- Trạng thái -->
-                            <span th:id="'badge-status-' + ${dg.idDanhGia}" 
-                                  th:class="${dg.daDuyet} ? 'badge bg-success me-auto' : 'badge bg-warning text-dark me-auto'"
-                                  th:text="${dg.daDuyet} ? '✅ Đã duyệt' : '⏳ Chờ duyệt'">
-                            </span>
-                            
-                            <!-- Nút Duyệt / Ẩn -->
-                            <button th:if="${!dg.daDuyet}" th:id="'btn-duyet-' + ${dg.idDanhGia}" 
-                                    class="btn btn-sm btn-success" th:onclick="'updateStatus(' + ${dg.idDanhGia} + ', true)'">
-                                <i class="fas fa-check"></i> Duyệt hiển thị
-                            </button>
-                            <button th:if="${dg.daDuyet}" th:id="'btn-an-' + ${dg.idDanhGia}" 
-                                    class="btn btn-sm btn-warning" th:onclick="'updateStatus(' + ${dg.idDanhGia} + ', false)'">
-                                <i class="fas fa-eye-slash"></i> Ẩn đánh giá
-                            </button>
-                            
-                            <!-- Nút Xoá vĩnh viễn -->
-                            <button class="btn btn-sm btn-danger" th:onclick="'deleteReview(' + ${dg.idDanhGia} + ')'">
-                                <i class="fas fa-trash-alt"></i> Xoá vĩnh viễn
-                            </button>
-
-                            <!-- Nút Phản hồi -->
-                            <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" th:data-bs-target="'#reply-form-' + ${dg.idDanhGia}">
-                                <i class="fas fa-reply"></i> Phản hồi
-                            </button>
-                        </div>
-                        
-                        <!-- Reply box (Form ẩn) -->
-                        <div class="collapse mt-3" th:id="'reply-form-' + ${dg.idDanhGia}">
-                            <div class="card card-body bg-light">
-                                <textarea th:id="'reply-input-' + ${dg.idDanhGia}" class="form-control mb-2" rows="2" placeholder="Nhập phản hồi từ Admin..." th:text="${dg.phanHoiAdmin}"></textarea>
-                                <button type="button" class="btn btn-sm btn-primary" th:onclick="'sendReply(' + ${dg.idDanhGia} + ')'">Gửi phản hồi</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div th:if="${#lists.isEmpty(listDanhGia)}" class="text-center text-muted py-4">
-                        <i class="fas fa-inbox fa-3x mb-3 text-light"></i>
-                        <p>Không tìm thấy đánh giá nào.</p>
-                    </div>
-                </div>
-
-            </div>
+      <div class="admin-card">
+        <div
+          class="card-header d-flex justify-content-between align-items-center"
+        >
+          <h4 class="card-title">Danh sách Đánh Giá Khách Hàng</h4>
         </div>
+        <div class="card-body">
+          <!-- Filters -->
+          <form th:action="@{/admin/danhgia}" method="get" class="row mb-4">
+            <div class="col-md-3">
+              <select
+                name="status"
+                class="form-select"
+                onchange="this.form.submit()"
+              >
+                <option value="">-- Tất cả trạng thái --</option>
+                <option value="0" th:selected="${status == 0}">
+                  Chờ duyệt
+                </option>
+                <option value="1" th:selected="${status == 1}">Đã duyệt</option>
+              </select>
+            </div>
+          </form>
 
-        <script>
-            function updateStatus(id, trangThai) {
-                if(trangThai && !confirm("Bạn muốn duyệt hiển thị đánh giá này trên trang chủ?")) return;
-                if(!trangThai && !confirm("Bạn muốn ẩn đánh giá này khỏi trang chủ?")) return;
+          <!-- Đánh giá List -->
+          <div class="list-group mb-4">
+            <div
+              th:each="dg : ${listDanhGia}"
+              th:id="'review-item-' + ${dg.idDanhGia}"
+              class="list-group-item list-group-item-action p-4 mb-3 border rounded shadow-sm"
+            >
+              <div class="d-flex justify-content-between mb-2">
+                <div>
+                  <h6 class="mb-1 fw-bold">
+                    <i class="fas fa-user-circle text-secondary"></i>
+                    <span
+                      th:text="${dg.nguoiDung != null ? dg.nguoiDung.hoTen : 'Khách hàng ẩn danh'}"
+                    ></span>
+                  </h6>
+                  <small
+                    class="text-muted"
+                    th:text="${#temporals.format(dg.ngayDanhGia, 'dd/MM/yyyy HH:mm')}"
+                  ></small>
+                </div>
+                <div class="text-warning">
+                  <i
+                    th:each="i : ${#numbers.sequence(1, 5)}"
+                    th:class="${i <= dg.soSao} ? 'fas fa-star' : 'far fa-star'"
+                  ></i>
+                </div>
+              </div>
+              <p
+                class="mb-2 fw-bold text-primary"
+                th:text="'Sản phẩm: ' + ${dg.sanPham != null ? dg.sanPham.tenSanPham : ''}"
+              ></p>
+              <p
+                class="mb-3 fst-italic"
+                th:text="'&quot;' + ${dg.noiDung} + '&quot;'"
+              ></p>
 
-                fetch('/admin/danhgia/update-status/' + id, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ trangThai: trangThai })
-                })
-                .then(response => {
-                    if (response.ok) {
-                        // Reload trang để render lại các nút (cho đơn giản)
-                        window.location.reload();
-                    } else {
-                        alert("Có lỗi xảy ra, vui lòng thử lại!");
-                    }
-                })
-                .catch(err => console.error(err));
-            }
+              <!-- Hiển thị Ảnh đính kèm (nếu có) -->
+              <div
+                th:if="${dg.hinhAnh != null and !dg.hinhAnh.isEmpty()}"
+                class="mb-3"
+              >
+                <img
+                  th:src="@{${dg.hinhAnh}}"
+                  class="img-thumbnail"
+                  style="max-height: 100px; cursor: pointer"
+                  alt="Ảnh đánh giá"
+                />
+              </div>
 
-            function sendReply(id) {
-                const noiDung = document.getElementById('reply-input-' + id).value;
-                if (!noiDung.trim()) {
-                    alert("Vui lòng nhập nội dung phản hồi!");
-                    return;
-                }
+              <!-- Admin Reply (nếu có) -->
+              <div
+                th:id="'admin-reply-box-' + ${dg.idDanhGia}"
+                th:style="${dg.phanHoiAdmin != null and !dg.phanHoiAdmin.isEmpty()} ? 'display: block;' : 'display: none;'"
+                class="bg-light p-3 rounded mb-3 border-start border-4 border-primary"
+              >
+                <small class="text-muted fw-bold d-block mb-1"
+                  >Phản hồi từ Admin:</small
+                >
+                <p
+                  class="mb-0"
+                  th:id="'admin-reply-text-' + ${dg.idDanhGia}"
+                  th:text="${dg.phanHoiAdmin}"
+                ></p>
+              </div>
 
-                fetch('/admin/danhgia/reply/' + id, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ noiDungPhanHoi: noiDung })
-                })
-                .then(response => {
-                    if (response.ok) {
-                        alert("Đã gửi phản hồi!");
-                        // Hiển thị trực tiếp vào giao diện
-                        document.getElementById('admin-reply-text-' + id).innerText = noiDung;
-                        document.getElementById('admin-reply-box-' + id).style.display = 'block';
-                        
-                        // Đóng form
-                        const collapseEl = document.getElementById('reply-form-' + id);
-                        const bsCollapse = bootstrap.Collapse.getInstance(collapseEl) || new bootstrap.Collapse(collapseEl, {toggle: false});
-                        bsCollapse.hide();
-                    } else {
-                        alert("Lỗi khi gửi phản hồi!");
-                    }
-                })
-                .catch(err => console.error(err));
-            }
-            
-            function deleteReview(id) {
-                if(!confirm("CẢNH BÁO: Đánh giá sẽ bị xóa vĩnh viễn khỏi Database. Bạn có chắc chắn không?")) return;
+              <!-- Các nút thao tác -->
+              <div class="d-flex align-items-center gap-2">
+                <!-- Trạng thái -->
+                <span
+                  th:id="'badge-status-' + ${dg.idDanhGia}"
+                  th:class="${dg.daDuyet} ? 'badge bg-success me-auto' : 'badge bg-warning text-dark me-auto'"
+                  th:text="${dg.daDuyet} ? '✅ Đã duyệt' : '⏳ Chờ duyệt'"
+                >
+                </span>
 
-                fetch('/admin/danhgia/delete/' + id, {
-                    method: 'POST'
-                })
-                .then(response => {
-                    if (response.ok) {
-                        alert("Đã xóa vĩnh viễn đánh giá thành công!");
-                        // Xóa element khỏi màn hình
-                        const el = document.getElementById('review-item-' + id);
-                        if(el) el.remove();
-                    } else {
-                        alert("Có lỗi xảy ra khi xóa.");
-                    }
-                })
-                .catch(err => console.error(err));
-            }
-        </script>
+                <!-- Nút Duyệt / Ẩn -->
+                <button
+                  th:if="${!dg.daDuyet}"
+                  th:id="'btn-duyet-' + ${dg.idDanhGia}"
+                  class="btn btn-sm btn-success"
+                  th:onclick="'updateStatus(' + ${dg.idDanhGia} + ', true)'"
+                >
+                  <i class="fas fa-check"></i> Duyệt hiển thị
+                </button>
+                <button
+                  th:if="${dg.daDuyet}"
+                  th:id="'btn-an-' + ${dg.idDanhGia}"
+                  class="btn btn-sm btn-warning"
+                  th:onclick="'updateStatus(' + ${dg.idDanhGia} + ', false)'"
+                >
+                  <i class="fas fa-eye-slash"></i> Ẩn đánh giá
+                </button>
+
+                <!-- Nút Xoá vĩnh viễn -->
+                <button
+                  class="btn btn-sm btn-danger"
+                  th:onclick="'deleteReview(' + ${dg.idDanhGia} + ')'"
+                >
+                  <i class="fas fa-trash-alt"></i> Xoá vĩnh viễn
+                </button>
+
+                <!-- Nút Phản hồi -->
+                <button
+                  class="btn btn-sm btn-outline-primary"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  th:data-bs-target="'#reply-form-' + ${dg.idDanhGia}"
+                >
+                  <i class="fas fa-reply"></i> Phản hồi
+                </button>
+              </div>
+
+              <!-- Reply box (Form ẩn) -->
+              <div
+                class="collapse mt-3"
+                th:id="'reply-form-' + ${dg.idDanhGia}"
+              >
+                <div class="card card-body bg-light">
+                  <textarea
+                    th:id="'reply-input-' + ${dg.idDanhGia}"
+                    class="form-control mb-2"
+                    rows="2"
+                    placeholder="Nhập phản hồi từ Admin..."
+                    th:text="${dg.phanHoiAdmin}"
+                  ></textarea>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-primary"
+                    th:onclick="'sendReply(' + ${dg.idDanhGia} + ')'"
+                  >
+                    Gửi phản hồi
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div
+              th:if="${#lists.isEmpty(listDanhGia)}"
+              class="text-center text-muted py-4"
+            >
+              <i class="fas fa-inbox fa-3x mb-3 text-light"></i>
+              <p>Không tìm thấy đánh giá nào.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        function updateStatus(id, trangThai) {
+          if (
+            trangThai &&
+            !confirm("Bạn muốn duyệt hiển thị đánh giá này trên trang chủ?")
+          )
+            return;
+          if (
+            !trangThai &&
+            !confirm("Bạn muốn ẩn đánh giá này khỏi trang chủ?")
+          )
+            return;
+
+          fetch("/admin/danhgia/update-status/" + id, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ trangThai: trangThai }),
+          })
+            .then((response) => {
+              if (response.ok) {
+                // Reload trang để render lại các nút (cho đơn giản)
+                window.location.reload();
+              } else {
+                alert("Có lỗi xảy ra, vui lòng thử lại!");
+              }
+            })
+            .catch((err) => console.error(err));
+        }
+
+        function sendReply(id) {
+          const noiDung = document.getElementById("reply-input-" + id).value;
+          if (!noiDung.trim()) {
+            alert("Vui lòng nhập nội dung phản hồi!");
+            return;
+          }
+
+          fetch("/admin/danhgia/reply/" + id, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ noiDungPhanHoi: noiDung }),
+          })
+            .then((response) => {
+              if (response.ok) {
+                alert("Đã gửi phản hồi!");
+                // Hiển thị trực tiếp vào giao diện
+                document.getElementById("admin-reply-text-" + id).innerText =
+                  noiDung;
+                document.getElementById("admin-reply-box-" + id).style.display =
+                  "block";
+
+                // Đóng form
+                const collapseEl = document.getElementById("reply-form-" + id);
+                const bsCollapse =
+                  bootstrap.Collapse.getInstance(collapseEl) ||
+                  new bootstrap.Collapse(collapseEl, { toggle: false });
+                bsCollapse.hide();
+              } else {
+                alert("Lỗi khi gửi phản hồi!");
+              }
+            })
+            .catch((err) => console.error(err));
+        }
+
+        function deleteReview(id) {
+          if (
+            !confirm(
+              "CẢNH BÁO: Đánh giá sẽ bị xóa vĩnh viễn khỏi Database. Bạn có chắc chắn không?",
+            )
+          )
+            return;
+
+          fetch("/admin/danhgia/delete/" + id, {
+            method: "POST",
+          })
+            .then((response) => {
+              if (response.ok) {
+                alert("Đã xóa vĩnh viễn đánh giá thành công!");
+                // Xóa element khỏi màn hình
+                const el = document.getElementById("review-item-" + id);
+                if (el) el.remove();
+              } else {
+                alert("Có lỗi xảy ra khi xóa.");
+              }
+            })
+            .catch((err) => console.error(err));
+        }
+      </script>
     </div>
-</body>
+  </body>
 </html>

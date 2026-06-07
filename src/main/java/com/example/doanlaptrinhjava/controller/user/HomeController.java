@@ -27,12 +27,30 @@ public class HomeController {
     }
 
     private String getHomeView(Model model) {
-        List<SanPham> sanPhamNoiBatList = sanPhamRepository.findAll().stream()
+
+        List<SanPham> sanPhamMoiList = sanPhamRepository.findAll().stream()
                 .filter(SanPham::getTrangThai)
-                .filter(SanPham::getLaNoiBat)
-                .limit(8)
+                .filter(SanPham::getLaSanPhamMoi)
+                .limit(4)
                 .collect(Collectors.toList());
-        model.addAttribute("sanPhamNoiBatList", sanPhamNoiBatList);
+
+        List<SanPham> sanPhamBanChayList = sanPhamRepository.findAll().stream()
+                .filter(SanPham::getTrangThai)
+                .sorted((a, b) -> Integer.compare(b.getDaBan(), a.getDaBan()))
+                .limit(4)
+                .collect(Collectors.toList());
+
+        List<SanPham> sanPhamKhuyenMaiList = sanPhamRepository.findAll().stream()
+                .filter(SanPham::getTrangThai)
+                .filter(sp -> sp.getGiaKhuyenMai() != null)
+                .sorted((a, b) -> a.getGiaKhuyenMai().compareTo(b.getGiaKhuyenMai()))
+                .limit(4)
+                .collect(Collectors.toList());
+
+        model.addAttribute("sanPhamMoiList", sanPhamMoiList);
+        model.addAttribute("sanPhamBanChayList", sanPhamBanChayList);
+        model.addAttribute("sanPhamKhuyenMaiList", sanPhamKhuyenMaiList);
+
         return "user/home/index";
     }
 }

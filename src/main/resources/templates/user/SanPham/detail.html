@@ -126,6 +126,38 @@
             transform: translateY(-5px);
             box-shadow: 0 0.5rem 1rem rgba(0, 98, 65, 0.15) !important;
         }
+        
+        /* Style cho sao đánh giá */
+        .star-rating label {
+            font-size: 2.5rem;
+            color: #ccc;
+            cursor: pointer;
+            transition: 0.2s;
+            padding: 0 5px;
+        }
+        
+        .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label {
+            color: #FFD700;
+        }
+        
+        .star-rating input {
+            display: none;
+        }
+        
+        /* Style cho Modal */
+        .modal-content {
+            border-radius: 20px !important;
+        }
+        
+        .btn-main {
+            background: #00B14F;
+            color: white;
+        }
+        
+        .btn-main:hover {
+            background: #008a3e;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -280,9 +312,20 @@
         <div class="col-lg-4 mb-4 mb-lg-0">
             <div class="bg-light-green rounded p-4 text-center border shadow-sm"
                  style="border-color: #C8E6C9 !important;">
-                <h1 class="display-3 fw-bold text-accent mb-0">4.8</h1>
-                <div class="text-warning mb-2" style="font-size: 1.5rem;">★★★★★</div>
-                <p class="text-muted mb-4">Dựa trên 128 lượt đánh giá</p>
+                
+                <h1 class="display-3 fw-bold text-accent mb-0"
+                    th:text="${avgRating != null ? #numbers.formatDecimal(avgRating, 1, 1) : '0.0'}">4.8</h1>
+                
+                <div class="text-warning mb-2" style="font-size: 1.5rem;">
+                    <span th:each="i : ${#numbers.sequence(1, 5)}">
+                        <span th:if="${avgRating != null and i <= avgRating}">★</span>
+                        <span th:if="${avgRating == null or i > avgRating}" style="color: #ccc;">★</span>
+                    </span>
+                </div>
+                
+                <p class="text-muted mb-4"
+                   th:text="'Dựa trên ' + (${totalReviews != null ? totalReviews : 0}) + ' lượt đánh giá'">
+                    Dựa trên 128 lượt đánh giá </p>
                 
                 <button type="button" class="btn btn-outline-main rounded-pill px-4 fw-bold w-100" data-toggle="modal"
                         data-target="#reviewModal">
@@ -292,37 +335,32 @@
         </div>
         
         <div class="col-lg-8">
-            <div class="media mb-4 pb-4 border-bottom" style="border-color: #C8E6C9 !important;">
-                <img src="https://ui-avatars.com/api/?name=Nguyen+Van+A&background=00B14F&color=fff" alt="Avatar"
-                     class="rounded-circle mr-3 shadow-sm" style="width: 50px; height: 50px; object-fit: cover;">
+            <div th:each="dg : ${danhGiaList}" class="media mb-4 pb-4 border-bottom"
+                 style="border-color: #C8E6C9 !important;">
+                <img th:src="${dg.nguoiDung.anhDaiDien != null && !#strings.isEmpty(dg.nguoiDung.anhDaiDien)
+                        ? dg.nguoiDung.anhDaiDien
+                        : 'https://ui-avatars.com/api/?name=' + dg.nguoiDung.hoTen}" alt="Avatar"
+                     class="rounded-circle mr-3 shadow-sm" style="width:50px;height:50px;object-fit:cover;">
                 <div class="media-body">
                     <div class="d-flex justify-content-between align-items-center mb-1">
-                        <h6 class="fw-bold text-main mb-0">Nguyễn Văn A</h6>
-                        <span class="text-muted small">15/05/2026</span>
+                        <h6 class="fw-bold text-main mb-0" th:text="${dg.nguoiDung.hoTen}">Tên người dùng</h6>
+                        <span class="text-muted small"
+                              th:text="${#temporals.format(dg.ngayDanhGia, 'dd/MM/yyyy')}">Ngày</span>
                     </div>
-                    <div class="text-warning small mb-2">★★★★★</div>
-                    <p class="text-muted mb-2">Trà sữa đậm vị oolong rất ngon, trân châu dai mềm vừa tới. Giao hàng cực kỳ nhanh, shipper thân thiện. Sẽ ủng hộ quán dài dài!</p>
-                    <img src="https://i.pinimg.com/736x/81/a4/bb/81a4bbf789dc005db307140990fcad69.jpg"
-                         alt="Ảnh đánh giá" class="rounded shadow-sm mb-3"
+                    <div class="text-warning small mb-2">
+                        <span th:each="i : ${#numbers.sequence(1,5)}"
+                              th:style="${i <= dg.soSao} ? 'color:#ffc107' : 'color:#ddd'">
+                            ★
+                        </span>
+                    </div>
+                    <p class="text-muted mb-2" th:text="${dg.noiDung}">Nội dung đánh giá</p>
+                    <img th:if="${dg.hinhAnh != null}" th:src="${dg.hinhAnh}" class="rounded shadow-sm mb-3"
                          style="width: 100px; height: 100px; object-fit: cover;">
                 </div>
             </div>
             
-            <div class="media mb-4 pb-4 border-bottom" style="border-color: #C8E6C9 !important;">
-                <img src="https://ui-avatars.com/api/?name=Tran+B&background=006241&color=fff" alt="Avatar"
-                     class="rounded-circle mr-3 shadow-sm" style="width: 50px; height: 50px; object-fit: cover;">
-                <div class="media-body">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <h6 class="fw-bold text-main mb-0">Trần Thị B</h6>
-                        <span class="text-muted small">12/05/2026</span>
-                    </div>
-                    <div class="text-warning small mb-2">★★★★<span class="text-muted">★</span></div>
-                    <p class="text-muted mb-0">Nước ngon nhưng hôm nay quán quên cho thêm đá như mình đã ghi chú. Hơi buồn một xíu nhưng vị trà vẫn rất oke.</p>
-                </div>
-            </div>
-            
-            <div class="text-center mt-4">
-                <button class="btn btn-outline-secondary rounded-pill px-4">Xem thêm đánh giá ▾</button>
+            <div th:if="${danhGiaList.isEmpty()}" class="text-center text-muted">
+                Chưa có đánh giá nào cho sản phẩm này.
             </div>
         </div>
     </div>
@@ -363,47 +401,50 @@
     </div>
 </section>
 
-<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded border-0 shadow">
-            <div class="modal-header bg-light-green border-bottom-0">
-                <h5 class="modal-title fw-bold text-main" id="reviewModalLabel">Gửi đánh giá của bạn</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+        <div class="modal-content border-0 shadow-lg rounded-3">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-main">Gửi đánh giá sản phẩm</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <form th:action="@{/product/submitReview}" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="idSanPham" th:value="${sanPham.idSanPham}">
+                
                 <div class="modal-body p-4">
-                    <div class="mb-3 text-center">
-                        <label class="form-label fw-bold text-main d-block mb-2">Chất lượng sản phẩm:</label>
-                        <select name="SoSao" class="form-control text-warning fw-bold border-accent text-center mx-auto"
-                                style="width: 150px; height: auto;">
-                            <option value="5">★★★★★ (5 Sao)</option>
-                            <option value="4">★★★★☆ (4 Sao)</option>
-                            <option value="3">★★★☆☆ (3 Sao)</option>
-                            <option value="2">★★☆☆☆ (2 Sao)</option>
-                            <option value="1">★☆☆☆☆ (1 Sao)</option>
-                        </select>
+                    <div class="text-center mb-4">
+                        <div class="star-rating d-inline-flex flex-row-reverse">
+                            <input type="radio" name="SoSao" id="star5" value="5" required/><label for="star5">★</label>
+                            <input type="radio" name="SoSao" id="star4" value="4"/><label for="star4">★</label>
+                            <input type="radio" name="SoSao" id="star3" value="3"/><label for="star3">★</label>
+                            <input type="radio" name="SoSao" id="star2" value="2"/><label for="star2">★</label>
+                            <input type="radio" name="SoSao" id="star1" value="1"/><label for="star1">★</label>
+                        </div>
+                        <p class="text-muted small mt-1">Chọn số sao đánh giá</p>
                     </div>
+                    
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-main">Chia sẻ trải nghiệm của bạn:</label>
-                        <textarea class="form-control rounded" name="NoiDung" rows="4"
-                                  placeholder="Sản phẩm có ngon không? Phục vụ thế nào?..." required></textarea>
+                        <textarea class="form-control bg-light border-0" name="NoiDung" rows="4"
+                                  placeholder="Sản phẩm hôm nay thế nào? Hãy chia sẻ với quán nhé..."
+                                  required></textarea>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-main">Thêm hình ảnh (Tùy chọn):</label>
-                        <input class="form-control-file" type="file" name="HinhAnhUpload" accept="image/*">
+                    
+                    <div class="upload-container">
+                        <label class="btn btn-outline-secondary btn-sm w-100">
+                            <i class="fa fa-camera"></i> Thêm hình ảnh/video
+                            <input type="file" name="HinhAnhUpload" id="fileInput" accept="image/*" hidden>
+                        </label>
+                        <div id="previewArea" class="mt-2 text-center"></div>
                     </div>
                 </div>
-                <div class="modal-footer border-top-0 justify-content-center pb-4">
-                    <button type="submit" class="btn btn-main rounded-pill px-5 py-2 fw-bold shadow-sm">Gửi Đánh Giá
-                    </button>
+                
+                <div class="modal-footer border-0 pt-0 justify-content-center">
+                    <button type="submit" class="btn btn-main px-5 py-2 rounded-pill fw-bold">Gửi đánh giá</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
 <div th:replace="~{fragments/footer :: footer}"></div>
 <div th:replace="~{user/GioHang/popup :: popupCart}"></div>
 <script th:src="@{/js/header.js}"></script>
@@ -521,6 +562,22 @@
                 })
                 .catch(err => alert("Có lỗi xảy ra, vui lòng thử lại."));
     }
+    
+    document.getElementById('fileInput').addEventListener('change', function (e) {
+        const preview = document.getElementById('previewArea');
+        preview.innerHTML = ''; // Xóa ảnh cũ
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'img-thumbnail';
+                img.style.width = '100px';
+                preview.appendChild(img);
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
 
 </script>
 <script th:inline="javascript">

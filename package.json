@@ -1,0 +1,24 @@
+{
+  "name": "doanlaptrinhjava",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/huydung2401/DoAnLapTrinhJava.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/huydung2401/DoAnLapTrinhJava/issues"
+  },
+  "homepage": "https://github.com/huydung2401/DoAnLapTrinhJava#readme",
+  "devDependencies": {
+    "prettier": "^3.8.3"
+  }
+}

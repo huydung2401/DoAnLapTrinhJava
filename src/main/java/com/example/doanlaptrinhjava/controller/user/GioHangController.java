@@ -848,7 +848,7 @@ public class GioHangController {
         }
 
         chiTiet.setGia(gia);
-        
+
         dto.getSanPhamMua().add(chiTiet);
         double tongTien =
                 chiTiet.getGia()
@@ -891,7 +891,11 @@ public class GioHangController {
         donHang.setTongTien(dto.getTongTien());
         donHang.setPhuongThucThanhToan(dto.getPhuongThucThanhToan());
 
-        donHang.setTrangThai("CHO_XAC_NHAN");
+        if ("Banking".equals(dto.getPhuongThucThanhToan())) {
+            donHang.setTrangThai("CHO_THANH_TOAN");
+        } else {
+            donHang.setTrangThai("CHO_XAC_NHAN");
+        }
         donHang.setNgayDat(LocalDateTime.now());
 
         if (user != null) {
@@ -922,6 +926,10 @@ public class GioHangController {
         }
 
         session.removeAttribute("MUA_NGAY_INFO");
+
+        if ("Banking".equals(dto.getPhuongThucThanhToan())) {
+            return "redirect:/ThanhToan/QR/" + donHangDaLuu.getIdDonHang();
+        }
 
         return "redirect:/DonHang/XemHoaDon/"
                 + donHangDaLuu.getIdDonHang();

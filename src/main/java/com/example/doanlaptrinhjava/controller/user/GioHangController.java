@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.doanlaptrinhjava.model.SizeSanPham;
 import com.example.doanlaptrinhjava.model.Topping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import com.example.doanlaptrinhjava.model.ChiTietDonHang;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -64,6 +65,8 @@ public class GioHangController {
     @Autowired
     private ChiTietDonHangRepository chiTietDonHangRepository;
 
+    @Autowired
+    private ChiTietGioHangRepository chiTietGioHangRepository;
 
     private NguoiDung getUser(HttpSession session) {
 
@@ -869,59 +872,49 @@ public class GioHangController {
         return "user/ThanhToan/index";
     }
 
-    // ==================== ĐẶT HÀNG ====================
     @PostMapping("/DatHang")
     @Transactional
-    public String datHang(@ModelAttribute ThanhToanDTO dto,
-                          HttpSession session) {
-        System.out.println("DTO TongTien = " + dto.getTongTien());
-
-        if (dto == null) {
-            return "redirect:/GioHang";
-        }
+    public String datHang(@ModelAttribute ThanhToanDTO dto, HttpSession session) {
+        if (dto == null) return "redirect:/GioHang";
 
         NguoiDung user = getUser(session);
 
+        // 1. Tạo và Lưu Đơn Hàng
         DonHang donHang = new DonHang();
-
         donHang.setHoTenNguoiNhan(dto.getHoTen());
         donHang.setSoDienThoai(dto.getDienThoai());
         donHang.setDiaChiGiaoHang(dto.getDiaChi());
         donHang.setGhiChu(dto.getGhiChu());
         donHang.setTongTien(dto.getTongTien());
         donHang.setPhuongThucThanhToan(dto.getPhuongThucThanhToan());
-
-        if ("Banking".equals(dto.getPhuongThucThanhToan())) {
-            donHang.setTrangThai("CHO_THANH_TOAN");
-        } else {
-            donHang.setTrangThai("CHO_XAC_NHAN");
-        }
+        donHang.setTrangThai("Banking".equals(dto.getPhuongThucThanhToan()) ? "CHO_THANH_TOAN" : "CHO_XAC_NHAN");
         donHang.setNgayDat(LocalDateTime.now());
+        if (user != null) donHang.setNguoiDung(user);
 
+        DonHang donHangDaLuu = donHangRepository.save(donHang);
+        donHangRepository.flush(); // Đảm bảo ID được đẩy xuống DB
+
+        // 2. Chuyển từ Giỏ hàng sang Chi tiết đơn hàng
         if (user != null) {
-            donHang.setNguoiDung(user);
-        }
+            GioHang gioHang = gioHangRepository.findByNguoiDung_IdNguoiDung(user.getIdNguoiDung());
+            if (gioHang != null && gioHang.getChiTietGioHangs() != null) {
 
-        DonHang donHangDaLuu =
-                donHangRepository.save(donHang);
+                List<ChiTietGioHang> items = gioHang.getChiTietGioHangs();
+                System.out.println("DEBUG: Số item trong giỏ: " + items.size());
 
-        if (user != null) {
+                for (ChiTietGioHang item : items) {
+                    ChiTietDonHang ct = new ChiTietDonHang();
+                    ct.setDonHang(donHangDaLuu);
+                    ct.setSanPham(item.getSanPham());
+                    ct.setSizeSanPham(item.getSizeSanPham());
+                    ct.setSoLuong(item.getSoLuong());
+                    ct.setDonGia(item.getDonGia());
 
-            GioHang gioHang =
-                    gioHangRepository.findByNguoiDung_IdNguoiDung(
-                            user.getIdNguoiDung()
-                    );
+                    chiTietDonHangRepository.save(ct);
+                }
 
-            if (gioHang != null) {
-
-                System.out.println(
-                        "Dang xoa gio hang ID = "
-                                + gioHang.getIdGioHang()
-                );
-
-                chiTietRepository.xoaTheoGioHang(
-                        gioHang.getIdGioHang()
-                );
+                // 3. Xóa các mục trong giỏ hàng sau khi đặt thành công
+                chiTietRepository.deleteAll(items);
             }
         }
 
@@ -931,9 +924,7 @@ public class GioHangController {
             return "redirect:/ThanhToan/QR/" + donHangDaLuu.getIdDonHang();
         }
 
-        return "redirect:/DonHang/XemHoaDon/"
-                + donHangDaLuu.getIdDonHang();
-
+        return "redirect:/DonHang/XemHoaDon/" + donHangDaLuu.getIdDonHang();
     }
 
 

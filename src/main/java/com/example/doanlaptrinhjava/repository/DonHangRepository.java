@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import org.springframework.data.repository.query.Param;
+
 @Repository
 public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
 
@@ -17,9 +19,28 @@ public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
     Double getDoanhThuHomNay();
 
     @Query(value = "SELECT DATE(NgayDat) as ngay, SUM(TongTien) as doanhThu " +
-                   "FROM DonHang " +
-                   "WHERE TrangThai = 'HOAN_THANH' AND NgayDat >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) " +
-                   "GROUP BY DATE(NgayDat) " +
-                   "ORDER BY ngay ASC", nativeQuery = true)
+            "FROM DonHang " +
+            "WHERE TrangThai = 'HOAN_THANH' AND NgayDat >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) " +
+            "GROUP BY DATE(NgayDat) " +
+            "ORDER BY ngay ASC", nativeQuery = true)
     List<Object[]> getDoanhThu7NgayQua();
+
+
+    List<DonHang> findByNguoiDung_IdNguoiDungOrderByNgayDatDesc(
+            Integer idNguoiDung
+    );
+
+    @Query(value = """
+            SELECT COUNT(*)
+            FROM DonHang dh
+            INNER JOIN ChiTietDonHang ct
+                    ON dh.IdDonHang = ct.IdDonHang
+            WHERE dh.IdNguoiDung = :idNguoiDung
+              AND ct.IdSanPham = :idSanPham
+              AND dh.TrangThai = 'DA_THANH_TOAN'
+            """, nativeQuery = true)
+    long daMuaSanPham(
+            @Param("idNguoiDung") Integer idNguoiDung,
+            @Param("idSanPham") Integer idSanPham
+    );
 }

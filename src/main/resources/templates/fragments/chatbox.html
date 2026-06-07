@@ -1,0 +1,520 @@
+<div th:fragment="chatbox">
+    <style>
+        :root {
+            --brand: #16a34a;
+            --brand-dark: #15803d;
+            --brand-light: #dcfce7;
+        }
+        
+        .chat-fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(22, 163, 74, 0.4);
+            transition: transform .2s, box-shadow .2s;
+            z-index: 9999;
+        }
+        
+        .chat-fab:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 22px rgba(22, 163, 74, 0.5);
+        }
+        
+        .chat-fab:active {
+            transform: scale(0.95);
+        }
+        
+        #chatWindow {
+            position: fixed;
+            bottom: 92px;
+            right: 24px;
+            width: 360px;
+            height: 520px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.14);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 9998;
+            transform: scale(0.92) translateY(20px);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform .28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity .2s ease;
+        }
+        
+        #chatWindow.open {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .chat-header {
+            background: var(--brand);
+            padding: 13px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        
+        .ch-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        
+        .ch-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .ch-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            margin: 0;
+        }
+        
+        .ch-status {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin: 2px 0 0;
+        }
+        
+        .online-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #86efac;
+            flex-shrink: 0;
+        }
+        
+        .ch-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: background .15s, color .15s;
+        }
+        
+        .ch-close:hover {
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+        }
+        
+        .chat-date-sep {
+            text-align: center;
+            font-size: 11px;
+            color: #9ca3af;
+            padding: 6px 0;
+            flex-shrink: 0;
+            border-bottom: 1px solid #f3f4f6;
+            margin-bottom: 4px;
+        }
+        
+        #msgLog {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 13px 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            scroll-behavior: smooth;
+            background: #f9fafb;
+        }
+        
+        #msgLog::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        #msgLog::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 2px;
+        }
+        
+        .msg {
+            display: flex;
+            gap: 7px;
+            align-items: flex-end;
+        }
+        
+        .msg.user {
+            flex-direction: row-reverse;
+        }
+        
+        .msg-av {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            flex-shrink: 0;
+            background: #dcfce7;
+            color: #15803d;
+        }
+        
+        .msg.user .msg-av {
+            background: var(--brand);
+            color: #fff;
+        }
+        
+        .bubble {
+            padding: 9px 13px;
+            border-radius: 16px;
+            font-size: 13.5px;
+            line-height: 1.55;
+            max-width: 240px;
+            background: #fff;
+            color: #111827;
+            border: 1px solid #e5e7eb;
+            border-bottom-left-radius: 4px;
+            word-break: break-word;
+        }
+        
+        .msg.user .bubble {
+            background: var(--brand);
+            color: #fff;
+            border: none;
+            border-bottom-right-radius: 4px;
+            border-bottom-left-radius: 16px;
+        }
+        
+        .msg-time {
+            font-size: 10px;
+            color: #9ca3af;
+            margin: 2px 0 0;
+            padding: 0 4px;
+        }
+        
+        .msg.user .msg-time {
+            text-align: right;
+        }
+        
+        .typing-bubble {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            padding: 11px 15px;
+        }
+        
+        .typing-bubble span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #9ca3af;
+            animation: typingBounce 1.2s infinite;
+        }
+        
+        .typing-bubble span:nth-child(2) {
+            animation-delay: .15s;
+        }
+        
+        .typing-bubble span:nth-child(3) {
+            animation-delay: .3s;
+        }
+        
+        @keyframes typingBounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-6px);
+            }
+        }
+        
+        .quick-chips {
+            padding: 6px 13px 8px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+            background: #f9fafb;
+            border-top: 1px solid #f3f4f6;
+        }
+        
+        .chip {
+            font-size: 12px;
+            padding: 5px 11px;
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid rgba(22, 163, 74, 0.2);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background .15s, transform .1s;
+            white-space: nowrap;
+        }
+        
+        .chip:hover {
+            background: #bbf7d0;
+            transform: translateY(-1px);
+        }
+        
+        .input-area {
+            padding: 9px 11px 11px;
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+            border-top: 1px solid #f3f4f6;
+            background: #fff;
+            flex-shrink: 0;
+        }
+        
+        #userInput {
+            flex: 1;
+            padding: 9px 13px;
+            border: 1px solid #e5e7eb;
+            border-radius: 22px;
+            font-size: 13.5px;
+            outline: none;
+            resize: none;
+            background: #f9fafb;
+            color: #111827;
+            font-family: inherit;
+            line-height: 1.45;
+            max-height: 88px;
+            overflow-y: auto;
+            transition: border-color .15s;
+        }
+        
+        #userInput:focus {
+            border-color: var(--brand);
+            background: #fff;
+        }
+        
+        #userInput::placeholder {
+            color: #9ca3af;
+        }
+        
+        .send-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background .15s, transform .1s;
+        }
+        
+        .send-btn:hover {
+            background: var(--brand-dark);
+        }
+        
+        .send-btn:active {
+            transform: scale(0.93);
+        }
+        
+        .send-btn:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+        
+        @media (max-width: 420px) {
+            #chatWindow {
+                width: calc(100vw - 24px);
+                right: 12px;
+                bottom: 80px;
+            }
+            
+            .chat-fab {
+                right: 16px;
+                bottom: 16px;
+            }
+        }
+    </style>
+    
+    <!-- FAB Button -->
+    <button class="chat-fab" id="chatFab" onclick="toggleChat()" aria-label="Mở chat AI tư vấn">
+        <i class="fas fa-comment-dots"></i>
+    </button>
+    
+    <!-- Chat Window -->
+    <div id="chatWindow" role="dialog" aria-label="Chat AI tư vấn cửa hàng">
+        <div class="chat-header">
+            <div class="ch-avatar"><i class="fas fa-robot"></i></div>
+            <div class="ch-info">
+                <p class="ch-name">AI Tư Vấn</p>
+                <p class="ch-status"><span class="online-dot"></span>Đang hoạt động</p>
+            </div>
+            <button class="ch-close" onclick="toggleChat()" aria-label="Đóng chat">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="chat-date-sep" id="chatDate"></div>
+        
+        <div id="msgLog"></div>
+        
+        <div class="quick-chips" id="quickChips">
+            <button class="chip" onclick="quickSend('Menu hôm nay có gì?')">☕ Xem menu</button>
+            <button class="chip" onclick="quickSend('Giá các loại cà phê?')">💰 Xem giá</button>
+            <button class="chip" onclick="quickSend('Có khuyến mãi không?')">🎁 Khuyến mãi</button>
+            <button class="chip" onclick="quickSend('Giờ mở cửa?')">🕐 Giờ mở cửa</button>
+        </div>
+        
+        <div class="input-area">
+    <textarea id="userInput" rows="1" placeholder="Nhắn tin cho shop..." onkeydown="handleChatKey(event)"
+              oninput="resizeChatInput(this)"></textarea>
+            <button class="send-btn" id="chatSendBtn" onclick="sendChat()" aria-label="Gửi">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        (function () {
+            let chatOpen = false;
+            let chatWaiting = false;
+            let chatInited = false;
+            
+            window.toggleChat = function () {
+                chatOpen = !chatOpen;
+                const win = document.getElementById('chatWindow');
+                const fab = document.getElementById('chatFab');
+                win.classList.toggle('open', chatOpen);
+                fab.innerHTML = chatOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-comment-dots"></i>';
+                if (chatOpen && !chatInited) {
+                    initChat();
+                    chatInited = true;
+                }
+                if (chatOpen) setTimeout(() => document.getElementById('userInput').focus(), 300);
+            };
+            
+            function initChat() {
+                const date = document.getElementById('chatDate');
+                date.textContent = 'Hôm nay, ' + new Date().toLocaleTimeString('vi-VN', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                addMessage('Xin chào! Mình là AI tư vấn của shop. Bạn cần hỗ trợ gì về thực đơn hoặc dịch vụ không? 😊', 'bot');
+            }
+            
+            window.quickSend = function (text) {
+                document.getElementById('userInput').value = text;
+                document.getElementById('quickChips').style.display = 'none';
+                sendChat();
+            };
+            
+            window.handleChatKey = function (e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendChat();
+                }
+            };
+            
+            window.resizeChatInput = function (el) {
+                el.style.height = 'auto';
+                el.style.height = Math.min(el.scrollHeight, 88) + 'px';
+            };
+            
+            function getTime() {
+                return new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'});
+            }
+            
+            function addMessage(text, role) {
+                const log = document.getElementById('msgLog');
+                const isUser = role === 'user';
+                const el = document.createElement('div');
+                el.className = 'msg ' + (isUser ? 'user' : 'bot');
+                el.innerHTML = `
+      <div class="msg-av">${isUser ? '<i class="fas fa-user" style="font-size:12px"></i>' : '<i class="fas fa-robot" style="font-size:12px"></i>'}</div>
+      <div>
+        <div class="bubble">${escapeHtml(text)}</div>
+        <p class="msg-time">${getTime()}</p>
+      </div>`;
+                log.appendChild(el);
+                log.scrollTop = log.scrollHeight;
+            }
+            
+            function showTyping() {
+                const log = document.getElementById('msgLog');
+                const el = document.createElement('div');
+                el.id = 'typingIndicator';
+                el.className = 'msg bot';
+                el.innerHTML = `<div class="msg-av"><i class="fas fa-robot" style="font-size:12px"></i></div>
+      <div class="bubble typing-bubble"><span></span><span></span><span></span></div>`;
+                log.appendChild(el);
+                log.scrollTop = log.scrollHeight;
+            }
+            
+            function removeTyping() {
+                const el = document.getElementById('typingIndicator');
+                if (el) el.remove();
+            }
+            
+            function escapeHtml(str) {
+                return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+            }
+            
+            window.sendChat = async function () {
+                const input = document.getElementById('userInput');
+                const btn = document.getElementById('chatSendBtn');
+                const msg = input.value.trim();
+                if (!msg || chatWaiting) return;
+                
+                chatWaiting = true;
+                btn.disabled = true;
+                addMessage(msg, 'user');
+                input.value = '';
+                input.style.height = 'auto';
+                
+                showTyping();
+                
+                try {
+                    const res = await fetch('/api/chat/send', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({message: msg})
+                    });
+                    const data = await res.json();
+                    removeTyping();
+                    addMessage(data.reply, 'bot');
+                } catch (e) {
+                    removeTyping();
+                    addMessage('Xin lỗi, kết nối bị gián đoạn. Bạn vui lòng thử lại nhé!', 'bot');
+                }
+                
+                chatWaiting = false;
+                btn.disabled = false;
+                input.focus();
+            };
+        })();
+    </script>
+</div>

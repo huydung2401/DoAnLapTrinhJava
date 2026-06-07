@@ -54,7 +54,9 @@
                                 <div class="account-dropdown-btn">Tài khoản của tôi</div>
                                 <div class="account-dropdown-menu">
                                     <a th:href="@{/TaiKhoan/ThongTinCaNhan}"> Thông tin cá nhân </a>
-                                    <a href="#"> Đơn hàng của tôi </a>
+                                    <a th:href="@{/DonHang/CuaToi}">
+                                        Đơn hàng của tôi
+                                    </a>
                                     <a th:href="@{/TuVan}"> Tư vấn của tôi </a>
                                     <a href="#"> Đánh giá của tôi </a>
                                     <a th:href="@{/TaiKhoan/DangXuat}"> Đăng xuất </a>
@@ -84,15 +86,15 @@
             <a aria-expanded="false" class="dropdown-toggle" data-bs-toggle="dropdown" href="#">Sản phẩm</a>
             <ul class="dropdown-menu">
                 <li><a class="dropdown-item" th:href="@{/menu(categoryId=1)}"> Cà phê </a></li>
-                <li><a class="dropdown-item" th:href="@{/menu(categoryId=4)}"> Trà sữa </a></li>
+                <li><a class="dropdown-item" th:href="@{/menu(categoryId=5)}"> Trà sữa </a></li>
                 <li><a class="dropdown-item" th:href="@{/menu(categoryId=3)}"> Sinh tố </a></li>
-                <li><a class="dropdown-item" th:href="@{/menu(categoryId=5)}"> Nước ép </a></li>
+                <li><a class="dropdown-item" th:href="@{/menu(categoryId=4)}"> Nước ép </a></li>
             </ul>
         </div>
         <a th:href="@{/menu(categoryId=1)}">Cafe</a>
-        <a th:href="@{/menu(categoryId=4)}">Trà sữa</a>
+        <a th:href="@{/menu(categoryId=5)}">Trà sữa</a>
         <a th:href="@{/menu(categoryId=3)}">Sinh tố</a>
-        <a th:href="@{/KhuyenMai}">Khuyến mãi</a>
+        <a href="#">Khuyến mãi</a>
         <a th:href="@{/LienHe}">Liên hệ</a>
     </nav>
     

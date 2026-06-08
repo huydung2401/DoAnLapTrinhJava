@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Sort;
+
 @Service
 public class SanPhamService {
 
@@ -15,7 +17,12 @@ public class SanPhamService {
     private SanPhamRepository sanPhamRepository;
 
     public List<SanPham> getAllSanPham() {
-        return sanPhamRepository.findAll();
+        return sanPhamRepository.findAll(
+                Sort.by(
+                        Sort.Direction.ASC,
+                        "idSanPham"
+                )
+        );
     }
 
     public List<SanPham> searchSanPham(String tenSanPham, Integer idDanhMuc) {
@@ -26,7 +33,12 @@ public class SanPhamService {
         } else if (idDanhMuc != null) {
             return sanPhamRepository.findByDanhMuc_IdDanhMuc(idDanhMuc);
         }
-        return sanPhamRepository.findAll();
+        return sanPhamRepository.findAll(
+                Sort.by(
+                        Sort.Direction.ASC,
+                        "idSanPham"
+                )
+        );
     }
 
     public SanPham getSanPhamById(Integer id) {

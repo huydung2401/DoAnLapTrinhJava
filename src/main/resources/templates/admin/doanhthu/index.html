@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-layout}">
+
+<head>
+    <title>Quản lý doanh thu</title>
+</head>
+
+
+<div layout:fragment="content">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold text-primary"><i class="fa fa-chart-line"></i> BÁO CÁO TÀI CHÍNH</h4>
+        <button onclick="window.print()" class="btn btn-outline-secondary"><i class="fa fa-print"></i> In báo cáo
+        </button>
+    </div>
+    
+    <div class="row mb-4">
+        <a th:href="@{/admin/quan-ly-dat-coc}" class="card card-stat p-3 mb-3 d-block text-decoration-none text-dark">
+            <h6 class="text-uppercase opacity-75">Tổng doanh thu thực tế</h6>
+            <h2 class="display-6 fw-bold"
+                th:text="${#numbers.formatDecimal(tongDoanhThu, 0, 'COMMA', 0, 'POINT')} + ' đ'"></h2>
+        </a>
+        <div class="col-md-6">
+            <a th:href="@{/admin/quan-ly-khach-hang}"
+               class="card card-stat p-3 mb-3 d-block text-decoration-none text-dark">
+                <h6 class="text-uppercase opacity-75">Tổng số giao dịch thành công</h6>
+                <h2 class="display-6 fw-bold" th:text="${tongDonHang} + ' đơn'"></h2>
+            </a>
+        </div>
+    </div>
+    
+    <form method="get" class="row g-3 mb-3">
+        <div class="col-md-2">
+            <label class="form-label">Từ ngày</label>
+            <input type="date" name="tuNgay" class="form-control"
+                   th:value="${#temporals.format(tuNgay, 'yyyy-MM-dd')}"/>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Đến ngày</label>
+            <input type="date" name="denNgay" class="form-control"
+                   th:value="${#temporals.format(denNgay, 'yyyy-MM-dd')}"/>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary"><i class="fa fa-filter"></i> Lọc doanh thu</button>
+        </div>
+    </form>
+    
+    <div class="row">
+        <div class="col-lg-7 mb-4">
+            <div class="card shadow border-0">
+                <div class="card-header bg-white fw-bold"><i class="fa fa-chart-bar"></i> Biểu đồ doanh thu theo tháng
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card shadow border-0">
+                <div class="card-header bg-white fw-bold"><i class="fa fa-table"></i> Chi tiết theo tháng</div>
+                <div class="card-body p-0">
+                    <table class="table table-striped mb-0">
+                        <thead class="table-light">
+                        <tr>
+                            <th>Thời gian</th>
+                            <th class="text-center">Số đơn</th>
+                            <th class="text-end">Doanh thu</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="item : ${listDoanhThuThang}">
+                            
+                            <td class="fw-bold" th:text="'Tháng ' + ${item[0]} + '/' + ${item[1]}"></td>
+                            
+                            <td class="text-center">
+                                <span class="badge bg-secondary rounded-pill" th:text="${item[2]}">
+                                </span>
+                            </td>
+                            
+                            <td class="text-end fw-bold text-success"
+                                th:text="${#numbers.formatDecimal(item[3],0,'COMMA',0,'POINT')} + ' đ'"></td>
+                        
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            
+            <div class="col-lg-7 mb-4">
+                <div class="card shadow border-0">
+                    <div class="card-header bg-white fw-bold">
+                        <i class="fa fa-chart-line"></i>
+                        Biểu đồ doanh thu theo ngày
+                    </div>
+                    
+                    <div class="card-body">
+                        <canvas id="dailyRevenueChart" style="max-height:300px;"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-5">
+                <div class="card shadow border-0">
+                    
+                    <div class="card-header bg-white fw-bold">
+                        <i class="fa fa-table"></i>
+                        Chi tiết theo ngày
+                    </div>
+                    
+                    <div class="card-body p-0">
+                        
+                        <table class="table table-striped mb-0">
+                            
+                            <thead class="table-light">
+                            <tr>
+                                <th>Ngày</th>
+                                <th class="text-center">Số đơn</th>
+                                <th class="text-end">Doanh thu</th>
+                            </tr>
+                            </thead>
+                            
+                            <tbody>
+                            
+                            <tr th:each="item : ${listDoanhThuNgay}">
+                                
+                                <td class="fw-bold" th:text="${item[0]}"></td>
+                                <td class="text-center">
+                            <span class="badge bg-info rounded-pill" th:text="${item[1]}">
+                            </span>
+                                </td>
+                                
+                                <td class="text-end fw-bold text-success"
+                                    th:text="${#numbers.formatDecimal(item[2],0,'COMMA',0,'POINT')} + ' đ'"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+        /* ========= DOANH THU THEO THÁNG ========= */
+        
+        var labelsThang = /*[[${labelsThang}]]*/ [];
+        var dataThang = /*[[${dataThang}]]*/ [];
+        
+        new Chart(
+                document.getElementById('revenueChart').getContext('2d'),
+                {
+                    type: 'bar',
+                    
+                    data: {
+                        labels: labelsThang,
+                        
+                        datasets: [{
+                            label: 'Doanh thu (VNĐ)',
+                            data: dataThang,
+                            
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1,
+                            
+                            maxBarThickness: 60,
+                            barPercentage: 0.7,
+                            categoryPercentage: 0.8
+                        }]
+                    },
+                    
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                
+                                ticks: {
+                                    callback: function (value) {
+                                        return value.toLocaleString('vi-VN') + ' đ';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+        );
+        
+        
+        /* ========= DOANH THU THEO NGÀY ========= */
+        
+        var labelsNgay = /*[[${labelsNgay}]]*/ [];
+        var dataNgay = /*[[${dataNgay}]]*/ [];
+        
+        new Chart(
+                document.getElementById('dailyRevenueChart').getContext('2d'),
+                {
+                    type: 'line',
+                    
+                    data: {
+                        labels: labelsNgay,
+                        
+                        datasets: [{
+                            label: 'Doanh thu theo ngày (VNĐ)',
+                            data: dataNgay,
+                            
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            
+                            tension: 0.4,
+                            fill: true,
+                            
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        }]
+                    },
+                    
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                
+                                ticks: {
+                                    callback: function (value) {
+                                        return value.toLocaleString('vi-VN') + ' đ';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+        );
+    </script>
+</div>
+</html>

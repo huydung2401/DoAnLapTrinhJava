@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-layout}">
+<head><title>Danh sách đơn hàng</title></head>
+<body>
+<div layout:fragment="content">
+    <form th:action="@{/admin/donhang}" method="get" class="row g-2 mb-3 align-items-end">
+        
+        <div class="col-md-3">
+            <label class="form-label fw-semibold">Trạng thái</label>
+            
+            <select name="trangThai" class="form-select" onchange="this.form.submit()">
+                
+                <option value="" th:selected="${trangThai == null || trangThai == ''}">
+                    Tất cả
+                </option>
+                
+                <option value="CHO_THANH_TOAN" th:selected="${trangThai == 'CHO_THANH_TOAN'}">
+                    Chờ thanh toán
+                </option>
+                
+                <option value="DA_THANH_TOAN" th:selected="${trangThai == 'DA_THANH_TOAN'}">
+                    Đã thanh toán
+                </option>
+                
+                <option value="CHO_XAC_NHAN" th:selected="${trangThai == 'CHO_XAC_NHAN'}">
+                    Chờ xác nhận
+                </option>
+                
+                <option value="DA_XAC_NHAN" th:selected="${trangThai == 'DA_XAC_NHAN'}">
+                    Đã xác nhận
+                </option>
+                
+                <option value="DANG_GIAO" th:selected="${trangThai == 'DANG_GIAO'}">
+                    Đang giao
+                </option>
+                
+                <option value="DA_GIAO" th:selected="${trangThai == 'DA_GIAO'}">
+                    Đã giao
+                </option>
+                
+                <option value="DA_HUY" th:selected="${trangThai == 'DA_HUY'}">
+                    Đã hủy
+                </option>
+            
+            </select>
+        </div>
+    
+    </form>
+    
+    <table class="table table-bordered table-striped">
+        <thead class="table-light">
+        <tr>
+            <th>Mã đơn</th>
+            <th>Khách hàng</th>
+            <th>Ngày đặt</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${listDonHang}">
+            <td th:text="${item.idDonHang}"></td>
+            <td th:text="${item.hoTenNguoiNhan}"></td>
+            <td th:text="${#temporals.format(item.ngayDat, 'dd/MM/yyyy HH:mm:ss')}"></td>
+            <td th:text="${item.tongTien != null ? #numbers.formatDecimal(item.tongTien, 0, 'POINT', 0, 'COMMA') + ' đ' : '0 đ'}"></td>
+            
+            <td>
+                <span class="badge" th:classappend="${item.trangThai == 'CHO_XU_LY' ? 'bg-warning' :
+                                       (item.trangThai == 'DA_XAC_NHAN' ? 'bg-primary' :
+                                       (item.trangThai == 'DANG_GIAO' ? 'bg-info' :
+                                       (item.trangThai == 'HOAN_THANH' ? 'bg-success' : 'bg-danger')))}"
+                      th:text="${item.trangThai}">
+                </span>
+            </td>
+            
+            <td style="min-width:260px">
+                <form th:action="@{/admin/donhang/update-status}" method="post" class="d-flex">
+                    <input type="hidden" name="id" th:value="${item.idDonHang}"/>
+                    
+                    <select name="trangThaiMoi" class="form-select form-select-sm d-inline w-auto">
+                        
+                        <!-- Chờ thanh toán -->
+                        <th:block th:if="${item.trangThai == 'CHO_THANH_TOAN'}">
+                            <option value="CHO_THANH_TOAN" selected>
+                                Chờ thanh toán
+                            </option>
+                            <option value="DA_THANH_TOAN">
+                                Đã thanh toán
+                            </option>
+                        </th:block>
+                        
+                        <!-- Đã thanh toán -->
+                        <th:block th:if="${item.trangThai == 'DA_THANH_TOAN'}">
+                            <option value="DA_THANH_TOAN" selected>
+                                Đã thanh toán
+                            </option>
+                            <option value="CHO_XAC_NHAN">
+                                Chờ xác nhận
+                            </option>
+                        </th:block>
+                        
+                        <!-- Chờ xác nhận -->
+                        <th:block th:if="${item.trangThai == 'CHO_XAC_NHAN'}">
+                            <option value="CHO_XAC_NHAN" selected>
+                                Chờ xác nhận
+                            </option>
+                            <option value="DA_XAC_NHAN">
+                                Đã xác nhận
+                            </option>
+                            <option value="DA_HUY">
+                                Đã hủy
+                            </option>
+                        </th:block>
+                        
+                        <!-- Đã xác nhận -->
+                        <th:block th:if="${item.trangThai == 'DA_XAC_NHAN'}">
+                            <option value="DA_XAC_NHAN" selected>
+                                Đã xác nhận
+                            </option>
+                            <option value="DANG_GIAO">
+                                Đang giao
+                            </option>
+                            <option value="DA_HUY">
+                                Đã hủy
+                            </option>
+                        </th:block>
+                        
+                        <!-- Đang giao -->
+                        <th:block th:if="${item.trangThai == 'DANG_GIAO'}">
+                            <option value="DANG_GIAO" selected>
+                                Đang giao
+                            </option>
+                            <option value="DA_GIAO">
+                                Đã giao
+                            </option>
+                        </th:block>
+                        
+                        <!-- Đã giao -->
+                        <th:block th:if="${item.trangThai == 'DA_GIAO'}">
+                            <option value="DA_GIAO" selected>
+                                Đã giao
+                            </option>
+                        </th:block>
+                        
+                        <!-- Đã hủy -->
+                        <th:block th:if="${item.trangThai == 'DA_HUY'}">
+                            <option value="DA_HUY" selected>
+                                Đã hủy
+                            </option>
+                        </th:block>
+                    
+                    </select>
+                    
+                    <button type="submit" class="btn btn-sm btn-success ms-1">Cập nhật</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

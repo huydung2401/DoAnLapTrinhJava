@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-layout}">
+<head><title>Danh sách Khách hàng</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold text-primary"><i class="fa fa-users"></i> QUẢN LÝ KHÁCH HÀNG</h4>
+        <span class="badge bg-primary" th:text="'Tổng: ' + ${#lists.size(listKhachHang)}"></span>
+    </div>
+    
+    <form th:action="@{/admin/khachhang}" method="get" class="mb-3" id="filterForm">
+        <div class="row g-2 align-items-end">
+            
+            <div class="col-md-6">
+                <input type="text" id="searchInput" name="keyword" class="form-control" th:value="${keyword}"
+                       placeholder="Tên, email hoặc SĐT"/>
+            </div>
+            
+            <div class="col-md-2">
+                <select name="trangThai" id="trangThaiFilter" class="form-select">
+                    <option value="">-- Trạng thái --</option>
+                    <option value="true" th:selected="${trangThai == true}">
+                        Hoạt động
+                    </option>
+                    <option value="false" th:selected="${trangThai == false}">
+                        Khóa
+                    </option>
+                </select>
+            </div>
+            
+            <div class="col-md-2 d-grid">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-filter"></i> Lọc
+                </button>
+            </div>
+            
+            <div class="col-md-2 d-grid">
+                <a th:href="@{/admin/khachhang}" class="btn btn-outline-secondary">
+                    <i class="fa fa-times"></i> Xóa lọc
+                </a>
+            </div>
+        
+        </div>
+    </form>
+    
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                <tr>
+                    <th class="ps-3">Họ và tên</th>
+                    <th>Liên hệ</th>
+                    <th>Địa chỉ</th>
+                    <th>Quyền</th>
+                    <th>Trạng thái</th>
+                    <th class="text-center">Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${listKhachHang}">
+                    <td class="ps-3">
+                        <div class="fw-bold" th:text="${item.hoTen}"></div>
+                        <small class="text-muted" th:text="'ID: ' + ${item.idNguoiDung}"></small>
+                    </td>
+                    <td>
+                        <div><i class="fa fa-phone small me-1"></i> <span th:text="${item.soDienThoai}"></span></div>
+                        <div class="small text-muted"><i class="fa fa-envelope small me-1"></i> <span
+                                th:text="${item.email}"></span></div>
+                    </td>
+                    <td th:text="${item.diaChi}"></td>
+                    <td>
+                        <span th:if="${item.vaiTro == 'ADMIN'}" class="badge bg-danger">Admin</span>
+                        <span th:if="${item.vaiTro == 'STAFF'}" class="badge bg-info">Nhân viên</span>
+                        <span th:if="${item.vaiTro == 'USER'}" class="badge bg-secondary">Khách hàng</span>
+                    </td>
+                    <td>
+                            <span th:class="${item.trangThai} ? 'badge bg-success' : 'badge bg-danger'"
+                                  th:text="${item.trangThai} ? 'Hoạt động' : 'Đã khóa'"></span>
+                    </td>
+                    <td class="text-center">
+                        <a th:href="@{/admin/khachhang/details/{id}(id=${item.idNguoiDung})}"
+                           class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script layout:fragment="script">
+    
+    const searchInput = document.getElementById("searchInput");
+    const filterForm = document.getElementById("filterForm");
+    const trangThaiFilter = document.getElementById("trangThaiFilter");
+    
+    let timer;
+    
+    searchInput.addEventListener("input", function () {
+        
+        const keyword = this.value.trim();
+        
+        clearTimeout(timer);
+        
+        // Chưa đủ 3 ký tự thì không tìm
+        if (keyword.length > 0 && keyword.length < 2) {
+            return;
+        }
+        
+        timer = setTimeout(() => {
+            filterForm.submit();
+        }, 600);
+        
+    });
+    
+    if (trangThaiFilter) {
+        trangThaiFilter.addEventListener("change", function () {
+            filterForm.submit();
+        });
+    }
+
+</script>
+
+</body>
+</html>

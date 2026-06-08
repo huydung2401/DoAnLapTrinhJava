@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -13,6 +14,9 @@ import java.time.LocalDateTime;
 @Table(name = "DonHang")
 public class DonHang {
 
+    @OneToMany(mappedBy = "donHang", cascade = CascadeType.ALL)
+    private List<ChiTietDonHang> chiTietDonHangList;
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idDonHang;
@@ -40,4 +44,6 @@ public class DonHang {
     private String trangThai;
 
     private LocalDateTime ngayDat;
+
+
 }

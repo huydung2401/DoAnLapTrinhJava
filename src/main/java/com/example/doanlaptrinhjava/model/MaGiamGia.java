@@ -18,25 +18,28 @@ public class MaGiamGia {
     private Integer IdMaGiamGia;
 
     @Column(unique = true, length = 50)
-    private String MaCode;
+    private String maCode;
 
     @Column(length = 100)
-    private String TenMaGiamGia;
+    private String tenMaGiamGia;
 
     @Enumerated(EnumType.STRING)
-    private LoaiGiamGia LoaiGiamGia;
+    private LoaiGiamGia loaiGiamGia; // thêm trường này
 
-    private Double GiaTriGiam;
+    @Column(length = 20)
+    private String phamVi;
 
-    private Double DonToiThieu;
+    private Double giaTriGiam;
 
-    private Integer SoLuong;
+    private Double donToiThieu;
 
-    private Integer DaSuDung = 0;
+    private Integer soLuong;
 
-    private LocalDateTime NgayBatDau;
+    private Integer daSuDung = 0;
 
-    private LocalDateTime NgayKetThuc;
+    private LocalDateTime ngayBatDau;
 
-    private Boolean KichHoat = true;
+    private LocalDateTime ngayKetThuc;
+
+    private Boolean kichHoat = true;
 }

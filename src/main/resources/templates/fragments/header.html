@@ -7,12 +7,22 @@
                 </a>
             </div>
             
-            <form class="search-box" method="get" th:action="@{/menu}">
-                <input name="keyword" placeholder="Tìm đồ uống..." th:value="${currentKeyword}" type="text"/>
-                <button type="submit">
-                    <i class="fa fa-search"></i>
-                </button>
-            </form>
+            <div class="search-wrapper">
+                
+                <form class="search-box" method="get" th:action="@{/menu}">
+                    
+                    <input id="searchInput" name="keyword" type="text" placeholder="Tìm đồ uống..."
+                           th:value="${currentKeyword}" autocomplete="off"/>
+                    
+                    <button type="submit">
+                        <i class="fa fa-search"></i>
+                    </button>
+                
+                </form>
+                
+                <div id="searchSuggestion"></div>
+            
+            </div>
             
             <div class="header-right">
                 <div class="account">
@@ -102,8 +112,14 @@
     
     <div class="cart-sidebar" id="cartSidebar">
         <div class="cart-header">
-            <span class="close-cart" onclick="closeCart()"> × </span>
+            
+            <div class="cart-title-main">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fa-solid fa-cart-shopping text-success me-2"></i>
+                    Giỏ hàng của bạn </h5>
+            </div>
         </div>
+        
         <div id="cartContent">
             <div th:replace="~{user/GioHang/popup :: popupCart}"></div>
         </div>

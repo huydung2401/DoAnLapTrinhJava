@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
-@Controller
+@Controller("userDonHangController")
 public class DonHangController {
 
     @Autowired

@@ -17,39 +17,39 @@ public class SanPham {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer IdSanPham;
+    @Column(name = "IdSanPham")
+    private Integer idSanPham;
 
-    @Column(nullable = false, length = 200)
-    private String TenSanPham;
+    @Column(name = "TenSanPham", nullable = false, length = 200)
+    private String tenSanPham;
 
-    @Column(nullable = false)
-    private Double Gia;
+    @Column(name = "Gia", nullable = false)
+    private Double gia;
 
-    private Double GiaKhuyenMai;
+    @Column(name = "GiaKhuyenMai")
+    private Double giaKhuyenMai;
 
     @Column(columnDefinition = "TEXT")
-    private String MoTaNgan;
+    private String moTaNgan;
 
     @Column(columnDefinition = "LONGTEXT")
-    private String MoTaChiTiet;
+    private String moTaChiTiet;
 
-    private String HinhAnh;
+    private String hinhAnh;
 
-    private Integer SoLuongTon = 0;
+    private Integer soLuongTon = 0;
 
-    private Integer DaBan = 0;
+    private Integer daBan = 0;
 
-    private Double DanhGia = 5.0;
+    private Double danhGia = 5.0;
 
-    private Boolean LaNoiBat = false;
+    private Boolean laNoiBat = false;
+    private Boolean laBanChay = false;
+    private Boolean laSanPhamMoi = true;
 
-    private Boolean LaBanChay = false;
+    private Boolean trangThai = true;
 
-    private Boolean LaSanPhamMoi = true;
-
-    private Boolean TrangThai = true;
-
-    private LocalDateTime NgayThem = LocalDateTime.now();
+    private LocalDateTime ngayThem = LocalDateTime.now();
 
     @ManyToOne
     @JoinColumn(name = "IdDanhMuc")

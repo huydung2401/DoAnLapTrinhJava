@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-layout}">
+
+<head>
+    <title>Quản lý tư vấn</title>
+</head>
+
+<body>
+
+<div layout:fragment="content">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold text-primary">
+            <i class="fa fa-envelope-open-text"></i>
+            CHI TIẾT PHIẾU TƯ VẤN #<span th:text="${tuVan.idTuVan}"></span>
+        </h4>
+        
+        <a th:href="@{/admin/tuvan}" class="btn btn-secondary">
+            <i class="fa fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+    
+    <div class="row">
+        
+        <div class="col-md-5">
+            
+            <div class="card bg-light h-100">
+                
+                <div class="card-header fw-bold">
+                    <i class="fa fa-user"></i>
+                    THÔNG TIN KHÁCH HÀNG
+                </div>
+                
+                <div class="card-body">
+                    
+                    <p>
+                        <strong>Ngày gửi:</strong>
+                        <span th:text="${#temporals.format(tuVan.ngayGui,'dd/MM/yyyy HH:mm')}"></span>
+                    </p>
+                    
+                    <hr>
+                    
+                    <ul class="list-group">
+                        
+                        <li class="list-group-item">
+                            <small class="text-muted">Họ tên</small>
+                            <div class="fw-bold" th:text="${tuVan.user.hoTen}"></div>
+                        </li>
+                        
+                        <li class="list-group-item">
+                            <small class="text-muted">Số điện thoại</small>
+                            <div class="fw-bold" th:text="${tuVan.user.soDienThoai}"></div>
+                        </li>
+                        
+                        <li class="list-group-item">
+                            <small class="text-muted">Email</small>
+                            <div class="fw-bold" th:text="${tuVan.user.email}"></div>
+                        </li>
+                        
+                        <li class="list-group-item">
+                            <small class="text-muted">Nội dung yêu cầu</small>
+                            <div class="fw-bold text-primary" style="white-space: pre-line"
+                                 th:text="${tuVan.noiDung}"></div>
+                        </li>
+                    
+                    </ul>
+                
+                </div>
+            
+            </div>
+        
+        </div>
+        
+        <div class="col-md-7">
+            
+            <div class="card shadow h-100">
+                
+                <div class="card-header bg-primary text-white fw-bold">
+                    <i class="fa fa-user-tie"></i>
+                    PHẢN HỒI TỪ ADMIN
+                </div>
+                
+                <div class="card-body">
+                    
+                    <form th:action="@{/admin/tuvan/reply}" method="post">
+                        
+                        <input type="hidden" name="id" th:value="${tuVan.idTuVan}">
+                        
+                        <textarea name="phanHoiAdmin" rows="8" class="form-control"
+                                  th:text="${tuVan.phanHoiAdmin}"></textarea>
+                        
+                        <button type="submit" class="btn btn-success mt-3">
+                            <i class="fa fa-paper-plane"></i>
+                            Gửi phản hồi
+                        </button>
+                    
+                    </form>
+                
+                </div>
+            
+            </div>
+        
+        </div>
+    
+    </div>
+
+
+</div>
+
+<script>
+    document.querySelector("form").addEventListener("submit", function () {
+        alert("FORM DA SUBMIT");
+    });
+</script>
+</body>
+</html>

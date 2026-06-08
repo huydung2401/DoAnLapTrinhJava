@@ -937,56 +937,56 @@ public class GioHangController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-
-            MaGiamGia voucher =
-                    maGiamGiaRepository.findByMaCode(code);
+            // Sử dụng .orElse(null) để xử lý Optional từ Repository
+            MaGiamGia voucher = maGiamGiaRepository.findByMaCode(code).orElse(null);
 
             if (voucher == null) {
-
                 response.put("success", false);
                 response.put("message", "Mã giảm giá không tồn tại");
-
                 return response;
             }
 
             if (!voucher.getKichHoat()) {
-
                 response.put("success", false);
                 response.put("message", "Mã giảm giá đã bị khóa");
-
                 return response;
             }
 
-            if (voucher.getNgayKetThuc()
-                    .isBefore(LocalDateTime.now())) {
-
+            // Kiểm tra thời gian kết thúc
+            if (voucher.getNgayKetThuc() != null && voucher.getNgayKetThuc().isBefore(LocalDateTime.now())) {
                 response.put("success", false);
                 response.put("message", "Mã giảm giá đã hết hạn");
+                return response;
+            }
 
+            // Kiểm tra thời gian bắt đầu (tùy chọn nhưng nên có)
+            if (voucher.getNgayBatDau() != null && voucher.getNgayBatDau().isAfter(LocalDateTime.now())) {
+                response.put("success", false);
+                response.put("message", "Mã giảm giá chưa đến ngày hiệu lực");
                 return response;
             }
 
             double tongTien = 0;
             double discount = 0;
 
-            Object totalObj =
-                    session.getAttribute("TONG_TIEN_THANH_TOAN");
+            Object totalObj = session.getAttribute("TONG_TIEN_THANH_TOAN");
 
             if (totalObj != null) {
                 tongTien = Double.parseDouble(totalObj.toString());
             }
 
-            if (voucher.getLoaiGiamGia()
-                    == LoaiGiamGia.TIEN_MAT) {
+            // Kiểm tra điều kiện đơn tối thiểu
+            if (voucher.getDonToiThieu() != null && tongTien < voucher.getDonToiThieu()) {
+                response.put("success", false);
+                response.put("message", "Đơn hàng chưa đủ giá trị tối thiểu là " + voucher.getDonToiThieu());
+                return response;
+            }
 
+            // Tính toán giảm giá
+            if (voucher.getLoaiGiamGia() == LoaiGiamGia.TIEN_MAT) {
                 discount = voucher.getGiaTriGiam();
-            } else if (voucher.getLoaiGiamGia()
-                    == LoaiGiamGia.PHAN_TRAM) {
-
-                discount =
-                        tongTien
-                                * voucher.getGiaTriGiam()
-                                / 100.0;
+            } else if (voucher.getLoaiGiamGia() == LoaiGiamGia.PHAN_TRAM) {
+                discount = tongTien * voucher.getGiaTriGiam() / 100.0;
             }
 
             response.put("success", true);
@@ -994,11 +994,9 @@ public class GioHangController {
             response.put("message", "Áp dụng thành công");
 
         } catch (Exception ex) {
-
             ex.printStackTrace();
-
             response.put("success", false);
-            response.put("message", ex.getMessage());
+            response.put("message", "Lỗi hệ thống: " + ex.getMessage());
         }
         return response;
     }

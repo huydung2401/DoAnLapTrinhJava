@@ -211,3 +211,58 @@ window.xoaSanPhamPopupAjax = function (idChiTiet) {
       alert("Đã xảy ra lỗi khi thực hiện xóa.");
     });
 };
+
+const searchInput =
+    document.getElementById("searchInput");
+
+const searchSuggestion =
+    document.getElementById("searchSuggestion");
+
+if (searchInput && searchSuggestion) {
+
+    searchInput.addEventListener("keyup", function () {
+
+        let keyword = this.value.trim();
+
+        if (keyword.length < 1) {
+            searchSuggestion.style.display = "none";
+            return;
+        }
+
+        fetch("/api/search?keyword=" + encodeURIComponent(keyword))
+
+            .then(response => response.json())
+
+            .then(data => {
+
+                let html = "";
+
+                data.forEach(sp => {
+
+                    html += `
+                        <div class="suggestion-item"
+                             onclick="window.location='/detail?id=${sp.idSanPham}'">
+                            ${sp.tenSanPham}
+                        </div>
+                    `;
+                });
+
+                searchSuggestion.innerHTML = html;
+
+                searchSuggestion.style.display =
+                    data.length > 0 ? "block" : "none";
+            })
+
+            .catch(err => console.error(err));
+
+    });
+
+    document.addEventListener("click", function (e) {
+
+        if (!e.target.closest(".search-wrapper")) {
+            searchSuggestion.style.display = "none";
+        }
+
+    });
+
+}

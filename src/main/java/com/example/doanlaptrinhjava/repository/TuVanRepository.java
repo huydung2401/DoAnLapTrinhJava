@@ -1,7 +1,6 @@
 package com.example.doanlaptrinhjava.repository;
 
 import com.example.doanlaptrinhjava.entity.TuVan;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

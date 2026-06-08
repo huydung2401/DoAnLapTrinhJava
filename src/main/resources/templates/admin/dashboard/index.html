@@ -1,179 +1,132 @@
-<!doctype html>
-<html
-  lang="vi"
-  xmlns:th="http://www.thymeleaf.org"
-  th:replace="~{admin/fragments/admin-layout :: layout('Tổng Quan Dashboard', ~{::#main-content})}"
->
-  <body>
-    <div id="main-content">
-      <!-- 4 Cards Thống kê -->
-      <div class="row mb-4">
-        <!-- Doanh thu -->
-        <div class="col-md-3">
-          <div class="admin-card text-white bg-primary mb-3">
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-layout}">
+
+
+<head>
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .card-stat {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: 0.3s;
+        }
+        
+        .card-stat:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
+        }
+        
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .bg-soft-primary {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+        
+        .bg-soft-success {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        
+        .bg-soft-danger {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .bg-soft-warning {
+            background: #fef3c7;
+            color: #d97706;
+        }
+    </style>
+</head>
+
+<div layout:fragment="content">
+    <div class="container-fluid py-4">
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <a th:href="@{/admin/sanpham}" class="card card-stat p-4 text-decoration-none text-dark">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase fw-bold small">Sản phẩm</h6>
+                            <h3 class="fw-bold" th:text="${tongSanPham}">0</h3>
+                            <small class="text-danger"><i class="fa fa-exclamation-circle"></i> <span
+                                    th:text="${sanPhamSapHet}">0</span> sắp hết</small>
+                        </div>
+                        <div class="icon-box bg-soft-primary"><i class="fa fa-box"></i></div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-stat p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase fw-bold small">Doanh thu</h6>
+                            <h3 class="fw-bold text-success"
+                                th:text="${#numbers.formatDecimal(tongDoanhThu, 0, 'POINT', 0, 'NONE')} + 'đ'">0đ</h3>
+                            <small class="text-muted">Tổng tháng này</small>
+                        </div>
+                        <div class="icon-box bg-soft-success"><i class="fa fa-money-bill-wave"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <a th:href="@{/admin/donhang}" class="card card-stat p-4 text-decoration-none text-dark">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase fw-bold small">Đơn mới</h6>
+                            <h3 class="fw-bold text-danger" th:text="${donHangMoi}">0</h3>
+                            <small class="text-muted">Chờ xử lý</small>
+                        </div>
+                        <div class="icon-box bg-soft-danger"><i class="fa fa-shopping-cart"></i></div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a th:href="@{/admin/khachhang}" class="card card-stat p-4 text-decoration-none text-dark">
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase fw-bold small">Khách hàng</h6>
+                            <h3 class="fw-bold" th:text="${tongKhachHang}">0</h3>
+                            <small class="text-muted">Tổng lượt đăng ký</small>
+                        </div>
+                        
+                        <div class="icon-box bg-soft-warning">
+                            <i class="fa fa-users"></i>
+                        </div>
+                    </div>
+                
+                </a>
+            </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="fw-bold mb-0"><i class="fa fa-history text-primary me-2"></i>Hoạt động gần đây</h5>
+            </div>
             <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="text-white-50 text-uppercase fw-bold">
-                    Doanh thu hôm nay
-                  </h6>
-                  <h3
-                    class="mb-0"
-                    th:text="${#numbers.formatDecimal(doanhThuHomNay, 0, 'COMMA', 0, 'POINT')} + ' đ'"
-                  >
-                    1.250.000 đ
-                  </h3>
+                <div th:each="item : ${hoatDongGanDay}" class="d-flex align-items-center mb-3 border-bottom pb-2">
+                    <div class="me-3"><i th:classappend="${item.icon}" class="fas text-secondary"></i></div>
+                    <div>
+                        <div class="fw-semibold" th:text="${item.noiDung}">Nội dung...</div>
+                        <small class="text-muted"
+                               th:text="${#temporals.format(item.thoiGian, 'HH:mm - dd/MM/yyyy')}"></small>
+                    </div>
                 </div>
-                <div class="h1 mb-0 text-white-50">
-                  <i class="fas fa-wallet"></i>
-                </div>
-              </div>
             </div>
-          </div>
         </div>
-
-        <!-- Đơn hàng -->
-        <div class="col-md-3">
-          <div class="admin-card text-white bg-success mb-3">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="text-white-50 text-uppercase fw-bold">
-                    Đơn hàng mới
-                  </h6>
-                  <h3 class="mb-0" th:text="${donHangMoi}">12</h3>
-                </div>
-                <div class="h1 mb-0 text-white-50">
-                  <i class="fas fa-shopping-cart"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tồn kho -->
-        <div class="col-md-3">
-          <div class="admin-card text-white bg-warning mb-3">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="text-white-50 text-uppercase fw-bold">
-                    SP sắp hết hàng
-                  </h6>
-                  <h3 class="mb-0" th:text="${spSapHetHang}">5</h3>
-                </div>
-                <div class="h1 mb-0 text-white-50">
-                  <i class="fas fa-boxes"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Đánh giá -->
-        <div class="col-md-3">
-          <div class="admin-card text-white bg-danger mb-3">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="text-white-50 text-uppercase fw-bold">
-                    Đánh giá chờ duyệt
-                  </h6>
-                  <h3 class="mb-0" th:text="${danhGiaChoDuyet}">8</h3>
-                </div>
-                <div class="h1 mb-0 text-white-50">
-                  <i class="fas fa-star"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <!-- Biểu đồ -->
-        <div class="col-md-8">
-          <div class="admin-card">
-            <div class="card-header">
-              <h5 class="card-title mb-0">Biểu đồ doanh thu 7 ngày qua</h5>
-            </div>
-            <div class="card-body">
-              <canvas id="revenueChart" height="100"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- Top Sản phẩm -->
-        <div class="col-md-4">
-          <div class="admin-card">
-            <div class="card-header">
-              <h5 class="card-title mb-0">Top 5 Bán Chạy</h5>
-            </div>
-            <div class="card-body p-0">
-              <table class="table table-hover mb-0 table-admin">
-                <tbody>
-                  <tr th:each="sp : ${top5BanChay}">
-                    <td>
-                      <img
-                        th:src="${sp.HinhAnh}"
-                        class="rounded"
-                        alt="Hình"
-                        style="width: 40px; height: 40px; object-fit: cover"
-                      />
-                    </td>
-                    <td th:text="${sp.TenSanPham}">Tên Sản Phẩm</td>
-                    <td class="text-end fw-bold" th:text="${sp.DaBan} + ' ly'">
-                      120 ly
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Script vẽ biểu đồ (Dữ liệu động) -->
-      <script th:inline="javascript">
-        document.addEventListener("DOMContentLoaded", function () {
-          var chartLabels = /*[[${chartLabels}]]*/ [
-            "17/05",
-            "18/05",
-            "19/05",
-            "20/05",
-            "21/05",
-            "22/05",
-            "23/05",
-          ];
-          var chartData = /*[[${chartData}]]*/ [
-            850000, 1020000, 950000, 1100000, 1400000, 1350000, 1250000,
-          ];
-
-          var ctx = document.getElementById("revenueChart").getContext("2d");
-          var chart = new Chart(ctx, {
-            type: "line",
-            data: {
-              labels: chartLabels,
-              datasets: [
-                {
-                  label: "Doanh thu (VNĐ)",
-                  data: chartData,
-                  backgroundColor: "rgba(0, 158, 247, 0.1)",
-                  borderColor: "#009ef7",
-                  borderWidth: 2,
-                  tension: 0.4,
-                  fill: true,
-                },
-              ],
-            },
-            options: {
-              responsive: true,
-              plugins: { legend: { display: false } },
-              scales: { y: { beginAtZero: true } },
-            },
-          });
-        });
-      </script>
     </div>
-  </body>
+</div>
 </html>

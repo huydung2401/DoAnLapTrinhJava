@@ -3,6 +3,7 @@
 <div id="cartSidebar" class="cart-sidebar">
     
     <div th:fragment="popupCart">
+        
         <div class="cart-popup">
             <!-- GIỎ HÀNG TRỐNG -->
             
@@ -36,7 +37,7 @@
                             <div class="product-meta meta-topping" style="display: block; margin-top: 2px">
                                 <b>Topping:</b>
                                 <th:block th:each="tp, iterStat : ${item.toppings}">
-                <span th:if="${tp.topping != null}" th:text="${tp.topping.tenTopping}"></span>
+                                    <span th:if="${tp.topping != null}" th:text="${tp.topping.tenTopping}"></span>
                                     
                                     <span th:if="${tp.topping == null}" th:text="${tp.tenTopping}"></span>
                                     

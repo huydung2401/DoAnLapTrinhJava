@@ -31,9 +31,11 @@ public class SanPhamController {
     // --------------------------------------
 
     @GetMapping("/menu")
-    public String viewMenu(Model model,
-                           @RequestParam(required = false) Integer categoryId,
-                           @RequestParam(required = false) String keyword) {
+    public String viewMenu(
+            Model model,
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "new") String sort) {
 
         List<DanhMuc> danhMucList = danhMucRepository.findAll().stream()
                 .filter(DanhMuc::getTrangThai)
@@ -45,18 +47,56 @@ public class SanPhamController {
         } else if (categoryId != null) {
             sanPhamList = sanPhamRepository.findByDanhMuc_IdDanhMucAndTrangThaiTrue(categoryId);
         } else if (keyword != null && !keyword.trim().isEmpty()) {
-            sanPhamList = sanPhamRepository.findByTenSanPhamContainingIgnoreCaseAndTrangThaiTrue(keyword.trim());
+            sanPhamList = sanPhamRepository.timKiemNangCao(keyword.trim());
         } else {
             sanPhamList = sanPhamRepository.findAll().stream()
                     .filter(SanPham::getTrangThai)
                     .collect(Collectors.toList());
+        }
+        switch (sort) {
+
+            case "price-asc":
+                sanPhamList.sort(
+                        (a, b) -> Double.compare(
+                                a.getGia(),
+                                b.getGia()
+                        )
+                );
+                break;
+
+            case "price-desc":
+                sanPhamList.sort(
+                        (a, b) -> Double.compare(
+                                b.getGia(),
+                                a.getGia()
+                        )
+                );
+                break;
+
+            case "name-asc":
+                sanPhamList.sort(
+                        (a, b) -> a.getTenSanPham()
+                                .compareToIgnoreCase(
+                                        b.getTenSanPham()
+                                )
+                );
+                break;
+
+            default:
+                // Mới nhất
+                sanPhamList.sort(
+                        (a, b) -> Integer.compare(
+                                b.getIdSanPham(),
+                                a.getIdSanPham()
+                        )
+                );
         }
 
         model.addAttribute("danhMucList", danhMucList);
         model.addAttribute("sanPhamList", sanPhamList);
         model.addAttribute("currentCategoryId", categoryId);
         model.addAttribute("currentKeyword", keyword);
-
+        model.addAttribute("sort", sort);
         return "user/SanPham/menu";
     }
 

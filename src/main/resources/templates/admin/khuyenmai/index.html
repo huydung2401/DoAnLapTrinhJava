@@ -1,232 +1,217 @@
-<!doctype html>
-<html
-  lang="vi"
-  xmlns:th="http://www.thymeleaf.org"
-  th:replace="~{admin/fragments/admin-layout :: layout('Quản lý Khuyến Mãi', ~{::#main-content})}"
->
-  <body>
-    <div id="main-content">
-      <!-- Thông báo -->
-      <div
-        th:if="${message}"
-        class="alert alert-success alert-dismissible fade show"
-      >
-        <span th:text="${message}"></span>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="alert"
-        ></button>
-      </div>
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-layout}">
 
-      <!-- Khu vực áp dụng khuyến mãi hàng loạt -->
-      <div class="admin-card mb-4 bg-light border">
-        <div class="card-body">
-          <h5 class="card-title text-primary">
-            <i class="fas fa-bolt"></i> Áp Dụng Khuyến Mãi Hàng Loạt
-          </h5>
-          <form
-            th:action="@{/admin/khuyenmai/bulk-apply}"
-            method="post"
-            class="row align-items-end mt-3"
-            onsubmit="
-              return confirm(
-                'Bạn có chắc muốn áp dụng mức giảm này cho tất cả sản phẩm trong danh mục đã chọn?',
-              );
-            "
-          >
-            <div class="col-md-4">
-              <label class="form-label fw-bold">Chọn danh mục</label>
-              <select name="idDanhMuc" class="form-select">
-                <option value="">-- Tất cả sản phẩm --</option>
-                <option
-                  th:each="dm : ${listDM}"
-                  th:value="${dm.idDanhMuc}"
-                  th:text="${dm.tenDanhMuc}"
-                ></option>
-              </select>
-            </div>
+<head>
+    <title>Quản lý khuyến mãi</title>
+</head>
+
+<body>
+
+<div layout:fragment="content">
+    
+    <h4 class="fw-bold text-primary mb-3">
+        QUẢN LÝ MÃ KHUYẾN MÃI </h4>
+    
+    <div th:if="${message}" class="alert alert-info" th:text="${message}"></div>
+    
+    <!-- FORM -->
+    <div class="card p-4 mb-4 shadow-sm">
+        
+        <h5 class="mb-3 border-bottom pb-2">
+            Tạo mã mới </h5>
+        
+        <form id="voucherForm" th:action="@{/admin/khuyenmai/tao-ma}" method="post" class="row g-3">
+            
             <div class="col-md-3">
-              <label class="form-label fw-bold">Mức giảm giá (%)</label>
-              <input
-                type="number"
-                name="mucGiam"
-                class="form-control"
-                placeholder="Ví dụ: 10"
-                min="1"
-                max="100"
-                required
-              />
+                <label>Mã Code</label>
+                <input name="maCode" class="form-control" placeholder="VD: SALE10" required>
             </div>
+            
             <div class="col-md-3">
-              <button type="submit" class="btn btn-primary-admin w-100">
-                <i class="fas fa-check"></i> Áp dụng ngay
-              </button>
+                <label>Giá trị giảm</label>
+                <input name="giaTriGiam" type="number" class="form-control" required>
             </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Danh sách sản phẩm để chỉnh sửa khuyến mãi -->
-      <div class="admin-card">
-        <div class="card-header">
-          <h4 class="card-title">Thiết Lập Khuyến Mãi Từng Sản Phẩm</h4>
-        </div>
-        <div class="card-body">
-          <form th:action="@{/admin/khuyenmai}" method="get" class="row mb-3">
-            <div class="col-md-4">
-              <select
-                name="status"
-                class="form-select"
-                onchange="this.form.submit()"
-              >
-                <option value="">-- Tất cả trạng thái --</option>
-                <option value="1" th:selected="${status == 1}">
-                  Đang có khuyến mãi
-                </option>
-                <option value="0" th:selected="${status == 0}">
-                  Không có khuyến mãi
-                </option>
-              </select>
+            
+            <div class="col-md-3">
+                <label>Loại giảm</label>
+                <select name="loaiGiamGia" class="form-control">
+                    
+                    <option value="TIEN_MAT">
+                        Tiền mặt
+                    </option>
+                    
+                    <option value="PHAN_TRAM">
+                        Phần trăm
+                    </option>
+                
+                </select>
             </div>
-          </form>
-
-          <div class="table-responsive">
-            <table class="table table-hover table-admin align-middle">
-              <thead>
-                <tr>
-                  <th>Ảnh</th>
-                  <th>Tên Sản Phẩm</th>
-                  <th>Danh Mục</th>
-                  <th>Giá Gốc (VNĐ)</th>
-                  <th>Giá Khuyến Mãi (VNĐ)</th>
-                  <th width="120" class="text-center">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr th:each="item : ${listSP}">
-                  <td>
-                    <img
-                      th:src="@{${item.hinhAnh}}"
-                      class="rounded"
-                      alt="Ảnh SP"
-                      width="40"
-                      height="40"
-                      style="object-fit: cover"
-                    />
-                  </td>
-                  <td class="fw-bold" th:text="${item.tenSanPham}"></td>
-                  <td
-                    th:text="${item.danhMuc != null ? item.danhMuc.tenDanhMuc : ''}"
-                  ></td>
-                  <td
-                    th:text="${#numbers.formatDecimal(item.gia, 0, 'COMMA', 0, 'POINT')}"
-                  ></td>
-                  <td>
-                    <div class="input-group input-group-sm">
-                      <input
-                        type="number"
-                        class="form-control fw-bold km-input"
-                        th:classappend="${item.giaKhuyenMai != null ? 'text-danger' : ''}"
-                        th:value="${item.giaKhuyenMai != null ? item.giaKhuyenMai : ''}"
-                        placeholder="Trống"
-                        min="0"
-                      />
-                    </div>
-                  </td>
-                  <td class="text-center">
-                    <button
-                      class="btn btn-sm btn-success"
-                      title="Lưu"
-                      th:onclick="'saveKhuyenMai(' + ${item.idSanPham} + ', this)'"
-                    >
-                      <i class="fas fa-save"></i>
-                    </button>
-                    <button
-                      class="btn btn-sm btn-outline-danger"
-                      title="Xóa KM"
-                      th:onclick="'removeKhuyenMai(' + ${item.idSanPham} + ', this)'"
-                    >
-                      <i class="fas fa-times"></i>
-                    </button>
-                  </td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(listSP)}">
-                  <td colspan="6" class="text-center text-muted py-4">
-                    Không tìm thấy sản phẩm nào!
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <script>
-        function saveKhuyenMai(id, btn) {
-          const tr = btn.closest("tr");
-          const input = tr.querySelector(".km-input");
-          const giaKhuyenMai = input.value;
-
-          if (!giaKhuyenMai || giaKhuyenMai < 0) {
-            alert("Vui lòng nhập giá khuyến mãi hợp lệ!");
-            return;
-          }
-
-          btn.disabled = true;
-          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-
-          fetch("/admin/khuyenmai/update/" + id, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ giaKhuyenMai: parseFloat(giaKhuyenMai) }),
-          })
-            .then((response) => {
-              if (response.ok) {
-                alert("Lưu giá khuyến mãi thành công!");
-                input.classList.add("text-danger");
-              } else {
-                alert("Lỗi khi lưu giá khuyến mãi.");
-              }
-            })
-            .catch((err) => console.error(err))
-            .finally(() => {
-              btn.disabled = false;
-              btn.innerHTML = '<i class="fas fa-save"></i>';
-            });
-        }
-
-        function removeKhuyenMai(id, btn) {
-          if (
-            !confirm(
-              "Bạn có chắc muốn gỡ bỏ mức giá khuyến mãi của sản phẩm này?",
-            )
-          )
-            return;
-
-          const tr = btn.closest("tr");
-          const input = tr.querySelector(".km-input");
-
-          btn.disabled = true;
-
-          fetch("/admin/khuyenmai/remove/" + id, {
-            method: "POST",
-          })
-            .then((response) => {
-              if (response.ok) {
-                alert("Đã gỡ khuyến mãi thành công!");
-                input.value = "";
-                input.classList.remove("text-danger");
-              } else {
-                alert("Lỗi khi gỡ khuyến mãi.");
-              }
-            })
-            .catch((err) => console.error(err))
-            .finally(() => {
-              btn.disabled = false;
-            });
-        }
-      </script>
+            
+            <div class="col-md-3">
+                <label>Số lượng</label>
+                <input name="soLuong" type="number" value="100" class="form-control">
+            </div>
+            
+            <div class="col-md-3">
+                <label>Ngày bắt đầu</label>
+                <input type="datetime-local" name="ngayBatDau" class="form-control">
+            </div>
+            
+            <div class="col-md-3">
+                <label>Ngày kết thúc</label>
+                <input type="datetime-local" name="ngayKetThuc" class="form-control">
+            </div>
+            
+            <div class="col-12 text-end">
+                <button type="submit" class="btn btn-success">
+                    <i class="fa fa-plus"></i>
+                    Tạo mã
+                </button>
+            </div>
+        
+        </form>
+    
     </div>
-  </body>
+    
+    <!-- TABLE -->
+    <table class="table table-bordered bg-white">
+        
+        <thead class="table-light">
+        <tr>
+            <th>Code</th>
+            <th>Giảm</th>
+            <th>Số lượng</th>
+            <th>Thời gian</th>
+            <th>Xóa</th>
+        </tr>
+        </thead>
+        
+        <tbody>
+        
+        <tr th:each="item : ${listMa}">
+            
+            <!-- Mã code -->
+            <td class="fw-bold text-danger" th:text="${item.maCode}"></td>
+            
+            <!-- Giá trị giảm -->
+            <td>
+                <span th:text="${#numbers.formatDecimal(item.giaTriGiam, 0, 'COMMA', 0, 'POINT')}"></span>
+                <span th:text="${item.loaiGiamGia.name() == 'PHAN_TRAM' ? '%' : ' đ'}"></span>
+            </td>
+            
+            <!-- Số lượng -->
+            <td>
+                <span th:text="${item.daSuDung}"></span>
+                /
+                <span th:text="${item.soLuong}"></span>
+            </td>
+            
+            <!-- Thời gian -->
+            <td>
+                <small>
+                    Từ:
+                    <span th:text="${#temporals.format(item.ngayBatDau,'dd/MM/yyyy')}"></span>
+                </small>
+                <br>
+                
+                <small>
+                    Đến:
+                    <span th:text="${#temporals.format(item.ngayKetThuc,'dd/MM/yyyy')}"></span>
+                </small>
+            </td>
+            
+            <!-- Xóa -->
+            <td>
+                <a th:href="@{'/admin/khuyenmai/xoa-ma/' + ${item.idMaGiamGia}}" class="btn btn-danger btn-sm"
+                   onclick="return confirm('Xóa mã này?')">
+                    <i class="fa fa-trash"></i>
+                </a>
+            </td>
+        
+        </tr>
+        
+        </tbody>
+    
+    </table>
+    <script>
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            
+            const form = document.getElementById("voucherForm");
+            
+            if (!form) return;
+            
+            form.addEventListener("submit", function (e) {
+                
+                e.preventDefault();
+                
+                const data = new FormData(form);
+                
+                fetch(form.action, {
+                    method: "POST",
+                    body: data
+                })
+                        .then(res => res.json())
+                        .then(res => {
+                            
+                            if (!res.success) {
+                                alert(res.message);
+                                return;
+                            }
+                            
+                            const tbody = document.querySelector("table tbody");
+                            
+                            const tr = document.createElement("tr");
+                            
+                            tr.innerHTML = `
+                <td class="fw-bold text-danger">
+                    ${res.maCode}
+                </td>
+
+                <td>
+                    ${res.giaTriGiam}
+                    ${res.loaiGiamGia === 'PHAN_TRAM' ? '%' : 'đ'}
+                </td>
+
+                <td>
+                    0/${res.soLuong}
+                </td>
+
+                <td>
+                    <small>Từ: ${res.ngayBatDau ?? ''}</small><br>
+                    <small>Đến: ${res.ngayKetThuc ?? ''}</small>
+                </td>
+
+                <td>
+                    <a href="/admin/khuyenmai/xoa-ma/${res.idMaGiamGia}"
+                       class="btn btn-danger btn-sm">
+
+                       <i class="fa fa-trash"></i>
+
+                    </a>
+                </td>
+            `;
+                            
+                            tbody.prepend(tr);
+                            
+                            form.reset();
+                            
+                        })
+                        .catch(err => {
+                            
+                            console.error(err);
+                            alert("Có lỗi xảy ra.");
+                            
+                        });
+                
+            });
+            
+        });
+    
+    </script>
+</div>
+
+
+</body>
 </html>

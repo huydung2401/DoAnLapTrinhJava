@@ -84,14 +84,23 @@ public class OrderController {
         MaGiamGia mgg = null;
 
         if (maCode != null && !maCode.trim().isEmpty()) {
-            mgg = maGiamGiaRepository.findByMaCode(maCode.trim());
-            if (mgg != null && mgg.getKichHoat() && (mgg.getSoLuong() == null || mgg.getDaSuDung() < mgg.getSoLuong())) {
+            // 1. Dùng .orElse(null) để xử lý Optional từ Repository
+            mgg = maGiamGiaRepository.findByMaCode(maCode.trim()).orElse(null);
+
+            // 2. Kiểm tra null và các điều kiện logic
+            if (mgg != null && mgg.getKichHoat() &&
+                    (mgg.getSoLuong() == null || mgg.getDaSuDung() < mgg.getSoLuong())) {
+
                 if (mgg.getDonToiThieu() == null || tongTien >= mgg.getDonToiThieu()) {
-                    if (mgg.getLoaiGiamGia() == LoaiGiamGia.PHAN_TRAM) {
+
+                    // 3. Sử dụng .equals() hoặc so sánh trực tiếp Enum đã tách file
+                    if (LoaiGiamGia.PHAN_TRAM.equals(mgg.getLoaiGiamGia())) {
                         tienGiam = tongTien * (mgg.getGiaTriGiam() / 100.0);
-                    } else if (mgg.getLoaiGiamGia() == LoaiGiamGia.TIEN_MAT) {
+                    } else if (LoaiGiamGia.TIEN_MAT.equals(mgg.getLoaiGiamGia())) {
                         tienGiam = mgg.getGiaTriGiam();
                     }
+
+                    // 4. Đảm bảo tiền giảm không vượt quá tổng đơn hàng
                     if (tienGiam > tongTien) {
                         tienGiam = tongTien;
                     }
@@ -111,7 +120,7 @@ public class OrderController {
         donHang.setTienGiam(tienGiam);
         donHang.setPhuongThucThanhToan("COD");
         donHang.setNgayDat(java.time.LocalDateTime.now());
-        
+
         donHang = donHangRepository.save(donHang);
 
         // 5. Create ChiTietDonHang
@@ -159,7 +168,8 @@ public class OrderController {
             return response;
         }
 
-        MaGiamGia mgg = maGiamGiaRepository.findByMaCode(maCode.trim());
+        MaGiamGia mgg = maGiamGiaRepository.findByMaCode(maCode.trim())
+                .orElse(null);
         if (mgg == null || !mgg.getKichHoat()) {
             response.put("valid", false);
             response.put("message", "Mã giảm giá không hợp lệ hoặc đã vô hiệu hóa.");
